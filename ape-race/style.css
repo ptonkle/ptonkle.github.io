@@ -387,6 +387,3 @@ body[data-screen="race"] .menus:has(.panel.replay) {
 .replay-bar input { flex: 1; accent-color: var(--accent); }
 .replay-bar[hidden] { display: none; }
 .panel.replay h2 { margin: 0 0.4rem 0 0; }
-
-/* the invite link is long: shown small, cut to fit (TRIAGE row 27) */
-[id="online.copy_link.code"] { font-size: 0.75rem; max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -94,6 +94,8 @@ function copy(item) {
     if (navigator.clipboard) navigator.clipboard.writeText(item.copy).catch(() => {});
     send(item.id, "");
   });
+  // a bare copy is the button alone (the invite link is not shown)
+  if (item.bare) return b;
   wrap.append(make("label", "", item.label), code, b);
   return wrap;
 }
