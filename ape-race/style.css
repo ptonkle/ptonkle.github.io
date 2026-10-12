@@ -1,0 +1,270 @@
+:root {
+  --ink: #fdf6e3;
+  --muted: #d9e8c8;
+  --panel: rgba(22, 46, 26, 0.82);
+  --panel-line: rgba(180, 230, 120, 0.35);
+  --accent: #ffd447;
+  --accent-ink: #2b2410;
+  --leaf: #7cc04a;
+  --banana: #ffe066;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #78b296;
+  color: var(--ink);
+  font: 16px/1.4 "Trebuchet MS", system-ui, sans-serif;
+  user-select: none;
+}
+
+#view {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+.message {
+  position: fixed;
+  left: 50%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  font-size: 1.4rem;
+  text-shadow: 0 2px 4px #000;
+}
+
+/* ---- menus ---- */
+
+.menus {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  pointer-events: none;
+}
+
+.menus > * { pointer-events: auto; }
+
+body[data-screen="setup"] .menus { justify-content: flex-start; padding-left: 4vw; }
+body[data-screen="race"] .menus { background: rgba(10, 24, 12, 0.35); }
+body[data-screen="race"] .menus:empty { background: none; }
+body[data-screen="lineup"] .menus { display: none; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 18px;
+  padding: 1.2rem 1.4rem;
+  min-width: 18rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+}
+
+.panel h2 {
+  margin: 0 0 0.8rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.panel.title {
+  flex-basis: 100%;
+  background: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  text-align: center;
+  padding: 0;
+}
+
+.panel.title h2 {
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  letter-spacing: 0.06em;
+  color: var(--banana);
+  text-shadow: 0 4px 0 #6b4a18, 0 8px 18px rgba(0, 0, 0, 0.45);
+  margin: 0;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.panel.title .sub {
+  font-size: 1.3rem;
+  color: var(--ink);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.panel.menu { display: flex; flex-direction: column; gap: 0.6rem; min-width: 16rem; }
+.panel.overlay { min-width: 22rem; display: flex; flex-direction: column; gap: 0.6rem; }
+
+.button {
+  font: inherit;
+  font-weight: 700;
+  font-size: 1.15rem;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  border: 2px solid #c79a1e;
+  background: var(--accent);
+  color: var(--accent-ink);
+  cursor: pointer;
+  transition: transform 0.08s, background 0.12s;
+  margin-top: 0.4rem;
+  width: 100%;
+}
+
+.button:hover { transform: translateY(-2px) rotate(-1deg); background: #ffe27a; }
+.button:active { transform: translateY(1px); }
+.button.quiet { background: transparent; color: var(--ink); border-color: var(--panel-line); }
+
+.field { display: flex; align-items: center; gap: 0.8rem; margin: 0.5rem 0; justify-content: space-between; }
+.field label { color: var(--muted); }
+.field select, .field input[type="range"] { font: inherit; }
+.field select {
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--ink);
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  padding: 0.2rem 0.5rem;
+}
+.slider-value { min-width: 3rem; text-align: right; }
+
+.picker { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin: 0.3rem 0 0.8rem; }
+.picker .name { font-size: 1.6rem; font-weight: 800; color: var(--banana); text-align: center; flex: 1; }
+.picker button {
+  font: inherit;
+  font-size: 1.4rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  border: 2px solid var(--panel-line);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.stats { margin: 0.4rem 0 0.8rem; }
+.stat { display: grid; grid-template-columns: 7rem 1fr; align-items: center; gap: 0.6rem; margin: 0.25rem 0; }
+.stat .label { color: var(--muted); font-size: 0.95rem; }
+.stat .pips { display: flex; gap: 4px; }
+.stat .pip { flex: 1; height: 0.7rem; border-radius: 4px; background: rgba(255, 255, 255, 0.15); }
+.stat .pip.on { background: var(--leaf); }
+
+table.pairs, table.cells { border-collapse: collapse; width: 100%; }
+table.pairs td { padding: 0.2rem 0.4rem; }
+table.pairs td:first-child { color: var(--muted); }
+table.pairs td:last-child { text-align: right; font-weight: 700; }
+table.cells th { color: var(--muted); font-weight: 400; text-align: left; padding: 0.2rem 0.5rem; }
+table.cells td { padding: 0.3rem 0.5rem; }
+table.cells tr.me td { color: var(--banana); font-weight: 800; }
+
+.toggle { display: flex; align-items: center; justify-content: space-between; margin: 0.5rem 0; gap: 1rem; }
+.toggle span { color: var(--muted); }
+.toggle input { width: 1.2rem; height: 1.2rem; accent-color: var(--leaf); }
+
+/* ---- the race HUD ---- */
+
+.hud { position: fixed; inset: 0; pointer-events: none; }
+
+.hud-top { position: absolute; top: 1rem; left: 1rem; display: flex; gap: 0.8rem; }
+
+.pair {
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 12px;
+  padding: 0.35rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 6.5rem;
+}
+
+.pair .k { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.pair .v { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.item-slot {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--panel);
+  border: 2px solid var(--panel-line);
+  border-radius: 16px;
+  padding: 0.5rem 1rem;
+  min-width: 9rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+.item-slot .k { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.item-slot .v { font-size: 1.3rem; font-weight: 800; }
+.item-slot.full { border-color: var(--banana); box-shadow: 0 0 18px rgba(255, 224, 102, 0.6); }
+
+.big {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(3rem, 12vw, 8rem);
+  font-weight: 900;
+  font-style: italic;
+  color: var(--banana);
+  text-shadow: 0 5px 0 #6b4a18, 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 2rem;
+  transform: translateX(-50%);
+  background: var(--panel);
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+}
+.hint:empty { display: none; }
+
+.reticle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+}
+.reticle.cool { background: rgba(255, 90, 60, 0.9); }
+
+.minimap {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(22vw, 15rem);
+  height: min(22vw, 15rem);
+  background: rgba(22, 46, 26, 0.6);
+  border: 1px solid var(--panel-line);
+  border-radius: 16px;
+}
+
+/* Online play: text fields, the room code with its Copy button, pasted codes. */
+.text-field input,
+.text-field textarea {
+  font: inherit;
+  color: var(--ink);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem;
+  min-width: 12rem;
+}
+.text-field textarea { min-height: 4rem; width: 18rem; word-break: break-all; }
+.copy-field .copy-code { font-weight: bold; letter-spacing: 0.2em; }
+.button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.panel.setup .cells { margin: 0.5rem 0; }

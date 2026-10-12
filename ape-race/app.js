@@ -1,0 +1,504 @@
+// The page draws what the core returns and decides nothing. It loads the
+// data files, starts the core through the shim, passes the clock, keys and
+// mouse in each display frame, builds the menus and HUD from the core's
+// view model, draws the 3D frame and plays the sounds the core names.
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js";
+import { makeRenderer } from "./gl.js";
+
+const SAVE_KEY = "ape-race.settings";
+const el = (id) => document.getElementById(id);
+const make = (tag, cls, text) => {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+};
+
+function readStore() {
+  try {
+    return localStorage.getItem(SAVE_KEY) || "";
+  } catch (e) {
+    return "";
+  }
+}
+
+function writeStore(text) {
+  try {
+    localStorage.setItem(SAVE_KEY, text);
+  } catch (e) {
+    // Storage can be blocked; settings then last for this visit only.
+  }
+}
+
+let game;
+let ui = null;
+let panelsText = "";
+const canvas = el("view");
+
+// ---- menus, from the core's panels ----
+
+function send(id, value) {
+  game.act(id, value);
+  afterAct();
+}
+
+// The pointer is locked only by a click on the 3D view itself (the HUD
+// says so), never by a menu button: the mouse stays free for menus.
+function afterAct() {
+  ui = JSON.parse(game.ui());
+  handle(ui);
+}
+
+function button(item) {
+  const b = make("button", "button", item.text);
+  b.type = "button";
+  b.id = item.id;
+  b.disabled = item.disabled === true;
+  b.addEventListener("click", () => send(item.id, ""));
+  return b;
+}
+
+// A text field (one line, or several for a pasted code). Each keystroke goes
+// to the core; drawMenus keeps the focus and caret across the rebuild.
+function field(item) {
+  const wrap = make("div", "field text-field");
+  const label = make("label", "", item.label);
+  const input = make(item.multiline ? "textarea" : "input");
+  input.id = item.id;
+  input.value = item.value;
+  if (item.placeholder) input.placeholder = item.placeholder;
+  input.spellcheck = false;
+  label.htmlFor = item.id;
+  input.addEventListener("input", () => send(item.id, input.value));
+  wrap.append(label, input);
+  return wrap;
+}
+
+// A code and its Copy button: the core gives the text; putting it on the
+// clipboard is the page's job.
+function copy(item) {
+  const wrap = make("div", "field copy-field");
+  const code = make("span", "copy-code", item.value);
+  code.id = item.id + ".code";
+  const b = make("button", "button quiet", item.text);
+  b.type = "button";
+  b.id = item.id;
+  b.disabled = item.disabled === true;
+  b.addEventListener("click", () => {
+    if (navigator.clipboard) navigator.clipboard.writeText(item.copy).catch(() => {});
+    send(item.id, "");
+  });
+  wrap.append(make("label", "", item.label), code, b);
+  return wrap;
+}
+
+function picker(item) {
+  const box = make("div", "picker");
+  const prev = make("button", "", "‹");
+  prev.type = "button";
+  prev.id = item.id + ".prev";
+  prev.addEventListener("click", () => send(item.id + ".prev", ""));
+  const next = make("button", "", "›");
+  next.type = "button";
+  next.id = item.id + ".next";
+  next.addEventListener("click", () => send(item.id + ".next", ""));
+  const name = make("div", "name", item.text);
+  name.id = item.id;
+  box.append(prev, name, next);
+  return box;
+}
+
+function stats(item) {
+  const box = make("div", "stats");
+  item.rows.forEach((row) => {
+    const line = make("div", "stat");
+    const pips = make("div", "pips");
+    for (let k = 0; k < row.max; k += 1) pips.append(make("span", k < row.value ? "pip on" : "pip"));
+    line.append(make("span", "label", row.label), pips);
+    box.append(line);
+  });
+  return box;
+}
+
+function select(item) {
+  const wrap = make("div", "field");
+  const label = make("label", "", item.label);
+  const input = make("select");
+  item.options.forEach((o) => {
+    const opt = make("option", "", o.text);
+    opt.value = o.value;
+    input.append(opt);
+  });
+  input.value = item.value;
+  input.id = item.id;
+  label.htmlFor = item.id;
+  input.addEventListener("change", () => send(item.id, input.value));
+  wrap.append(label, input);
+  return wrap;
+}
+
+function slider(item) {
+  const wrap = make("div", "field slider");
+  const label = make("label", "", item.label);
+  const input = make("input");
+  input.type = "range";
+  input.id = item.id;
+  input.setAttribute("min", item.min);
+  input.setAttribute("max", item.max);
+  input.setAttribute("step", item.step);
+  input.value = item.value;
+  label.htmlFor = item.id;
+  input.addEventListener("change", () => send(item.id, input.value));
+  wrap.append(label, input, make("span", "slider-value", item.text));
+  return wrap;
+}
+
+function toggle(item) {
+  const wrap = make("label", "toggle");
+  const input = make("input");
+  input.type = "checkbox";
+  input.id = item.id;
+  input.checked = item.value;
+  input.addEventListener("change", () => send(item.id, input.checked ? "on" : "off"));
+  wrap.append(make("span", "", item.label), input);
+  return wrap;
+}
+
+function list(item) {
+  const table = make("table", "pairs");
+  item.rows.forEach((r) => {
+    const tr = make("tr");
+    tr.append(make("td", "", r[0]), make("td", "", r[1]));
+    table.append(tr);
+  });
+  return table;
+}
+
+// A results table: the last value of each row says whether it is this player.
+function cells(item) {
+  const table = make("table", "cells");
+  const head = make("tr");
+  item.head.forEach((h) => head.append(make("th", "", h)));
+  table.append(head);
+  item.rows.forEach((r) => {
+    const tr = make("tr", r[r.length - 1] === true ? "me" : "");
+    r.slice(0, -1).forEach((c) => tr.append(make("td", "", c)));
+    table.append(tr);
+  });
+  return table;
+}
+
+const builders = { button, picker, stats, select, slider, toggle, list, table: cells, field, copy };
+
+function drawMenus() {
+  const text = JSON.stringify(ui.panels || []);
+  if (text === panelsText) return;
+  panelsText = text;
+  const focused = document.activeElement && document.activeElement.id;
+  const caret = focused ? document.activeElement.selectionStart : null;
+  const box = el("menus");
+  box.replaceChildren();
+  (ui.panels || []).forEach((p) => {
+    const panel = make("div", "panel " + p.kind);
+    if (p.heading) panel.append(make("h2", "", p.heading));
+    if (p.sub) panel.append(make("div", "sub", p.sub));
+    p.items.forEach((item) => panel.append(builders[item.type](item)));
+    box.append(panel);
+  });
+  const again = focused && el(focused);
+  if (again && again.tagName !== "BUTTON") {
+    again.focus();
+    if (caret !== null && caret !== undefined && again.setSelectionRange) again.setSelectionRange(caret, caret);
+  }
+}
+
+// ---- the race HUD ----
+
+function pair(id, kv) {
+  const node = el(id);
+  const [k, v] = node.children;
+  if (k.textContent !== kv[0]) k.textContent = kv[0];
+  if (v.textContent !== kv[1]) v.textContent = kv[1];
+}
+
+function drawHud(h) {
+  pair("hud-place", h.place);
+  pair("hud-time", h.time);
+  pair("hud-speed", h.speed);
+  pair("hud-best", h.best);
+  pair("hud-item", h.item);
+  el("hud-item").className = h.item_key ? "item-slot full" : "item-slot";
+  el("hud-big").textContent = h.big;
+  el("hud-hint").textContent = h.hint;
+  el("hud-reticle").className = h.cooldown ? "reticle cool" : "reticle";
+  drawMinimap(h.minimap);
+}
+
+function drawMinimap(m) {
+  const mini = el("minimap");
+  if (mini.width !== m.size) {
+    mini.width = m.size;
+    mini.height = m.size;
+  }
+  const ctx = mini.getContext("2d");
+  ctx.clearRect(0, 0, m.size, m.size);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = m.track;
+  ctx.lineWidth = m.width;
+  ctx.beginPath();
+  for (let i = 0; i < m.line.length; i += m.stride) ctx.lineTo(m.line[i], m.line[i + 1]);
+  ctx.stroke();
+  ctx.fillStyle = m.finish_colour;
+  ctx.beginPath();
+  ctx.arc(m.finish[0], m.finish[1], m.dot, 0, m.circle);
+  ctx.fill();
+  m.apes.forEach((a) => {
+    ctx.fillStyle = a.colour;
+    ctx.strokeStyle = a.me ? m.me_ring : m.ring;
+    ctx.lineWidth = m.ring_width;
+    ctx.beginPath();
+    ctx.arc(a.x, a.y, a.me ? m.me_dot : m.dot, 0, m.circle);
+    ctx.fill();
+    ctx.stroke();
+  });
+}
+
+// ---- input ----
+
+function lockPointer() {
+  try {
+    const p = canvas.requestPointerLock();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) {
+    // Pointer lock may be refused (a headless browser); the mouse then does nothing.
+  }
+}
+
+function typing(e) {
+  const t = e.target && e.target.tagName;
+  return t === "INPUT" || t === "SELECT" || t === "TEXTAREA";
+}
+
+function bindInput() {
+  ["keydown", "keyup"].forEach((type) => {
+    window.addEventListener(type, (e) => {
+      if (typing(e)) return;
+      if (ui && ui.screen === "race" && !e.ctrlKey) e.preventDefault();
+      if (e.repeat) return;
+      game.key(e.code, type === "keydown");
+    });
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (document.pointerLockElement === canvas) game.mouse_move(e.movementX, e.movementY);
+  });
+  window.addEventListener("mousedown", (e) => game.mouse_button(e.button, true));
+  window.addEventListener("mouseup", (e) => game.mouse_button(e.button, false));
+  canvas.addEventListener("click", () => {
+    if (ui && ui.want_pointer && document.pointerLockElement !== canvas) lockPointer();
+  });
+  document.addEventListener("pointerlockchange", () => {
+    game.pointer_lock(document.pointerLockElement === canvas);
+  });
+  window.addEventListener("blur", () => game.blur());
+  window.addEventListener("contextmenu", (e) => {
+    if (ui && ui.screen === "race") e.preventDefault();
+  });
+}
+
+// ---- sound: the core makes every sound (WAV bytes); the page only plays ----
+
+let audio = null;
+let buffers = {};
+let buffersVolume = null;
+let wind = null;
+
+function wakeAudio() {
+  if (!audio) {
+    try {
+      audio = new AudioContext();
+    } catch (e) {
+      audio = null;
+    }
+  } else if (audio.state === "suspended") {
+    audio.resume();
+  }
+}
+window.addEventListener("pointerdown", wakeAudio, true);
+window.addEventListener("keydown", wakeAudio, true);
+
+async function bufferFor(key) {
+  if (buffersVolume !== ui.volume) {
+    buffers = {};
+    buffersVolume = ui.volume;
+    if (wind) {
+      wind.source.stop();
+      wind = null;
+    }
+  }
+  if (!buffers[key]) {
+    const bytes = game.sound(key);
+    if (!bytes.length) return null;
+    buffers[key] = audio.decodeAudioData(bytes.slice().buffer);
+  }
+  return buffers[key];
+}
+
+async function play(key) {
+  if (!audio) return;
+  try {
+    const buffer = await bufferFor(key);
+    if (!buffer) return;
+    const source = audio.createBufferSource();
+    source.buffer = await buffer;
+    source.connect(audio.destination);
+    source.start();
+    document.body.dataset.sound = key;
+  } catch (e) {
+    // A sound that cannot play is skipped; the race goes on.
+  }
+}
+
+let windStarting = false;
+
+async function setWind(gain) {
+  if (!audio || audio.state !== "running") return;
+  if (!wind && !windStarting && gain > 0) {
+    windStarting = true;
+    try {
+      const buffer = await bufferFor("wind");
+      if (buffer) {
+        const source = audio.createBufferSource();
+        source.buffer = await buffer;
+        source.loop = true;
+        const level = audio.createGain();
+        level.gain.value = 0;
+        source.connect(level);
+        level.connect(audio.destination);
+        source.start();
+        wind = { source, level };
+      }
+    } catch (e) {
+      wind = null;
+    }
+    windStarting = false;
+  }
+  if (wind) wind.level.gain.value = gain;
+}
+
+// ---- online play: the transport (PLAN P13) ----
+// online.js is imported only when a player hosts or joins.
+
+let online = null;
+
+function onNet(e) {
+  game.net_event(e.kind, e.peer || "", e.text || "", !!e.host);
+}
+
+async function netRequest(req) {
+  try {
+    if (!online) online = await import("./online.js");
+    if (req.op === "host_room") await online.hostRoom(req.room, onNet);
+    else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
+    else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
+    else if (req.op === "invite_code") game.net_code("invite", await online.inviteByCode());
+    else if (req.op === "join_code") game.net_code("reply", await online.joinByCode(req.invite, onNet));
+    else if (req.op === "accept_reply") await online.acceptAnswer(req.reply);
+    else if (req.op === "leave") online.leave();
+  } catch (err) {
+    game.net_event("error", "", (err && err.message) || "online.signal_failed", false);
+  }
+}
+
+function flushNet() {
+  const out = JSON.parse(game.outbox());
+  if (!online) return;
+  out.forEach((m) => {
+    if (m.to === null) online.broadcast(m.text);
+    else online.send(m.to, m.text);
+  });
+}
+
+// ---- the loop ----
+
+function handle(view) {
+  if (view.error) {
+    el("message").textContent = view.error;
+    return;
+  }
+  if (view.save) writeStore(view.save);
+  if (view.sounds) view.sounds.forEach(play);
+  // Messages first: a Leave goes out before the transport closes.
+  if (view.net_requests) {
+    flushNet();
+    view.net_requests.forEach(netRequest);
+  }
+  if (view.remote_moved !== undefined) document.body.dataset.remoteMoved = String(view.remote_moved);
+  document.body.dataset.screen = view.screen;
+  el("hud").hidden = view.screen !== "race";
+  if (view.hud) drawHud(view.hud);
+  drawMenus();
+  setWind(view.wind);
+  if (!view.want_pointer && document.pointerLockElement === canvas) document.exitPointerLock();
+}
+
+async function start() {
+  await init();
+  const [strings, vertex, fragment] = await Promise.all(
+    ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
+      fetch(f).then((r) => r.text()),
+    ),
+  );
+  const entropy = new Uint32Array(1);
+  crypto.getRandomValues(entropy);
+  game = new Game(strings, readStore(), entropy[0]);
+  const first = JSON.parse(game.ui());
+  if (first.error) {
+    el("message").textContent = first.error;
+    document.body.dataset.ready = "true";
+    return;
+  }
+  const N = JSON.parse(numbers());
+  let renderer = null;
+  try {
+    renderer = makeRenderer(canvas, N, { vertex, fragment }, (id) => mesh(id), uniforms(), clear_colour());
+  } catch (e) {
+    renderer = null;
+  }
+  if (!renderer) el("message").textContent = first.no_webgl;
+
+  function resize() {
+    const [w, h] = game.resize(canvas.clientWidth, canvas.clientHeight, window.devicePixelRatio || 1);
+    if (renderer) renderer.resize(w, h);
+  }
+  window.addEventListener("resize", resize);
+  resize();
+  bindInput();
+  if (new URLSearchParams(location.search).has("lineup")) game.act("screen.lineup", "");
+  // This browser's id for online play, and `?codes`: the pasted-code path,
+  // for the automated online check only.
+  game.act("flag.client", crypto.randomUUID());
+  if (new URLSearchParams(location.search).has("codes")) game.act("flag.codes", "on");
+
+  let sceneVersion = null;
+  function frame(now) {
+    game.advance(now);
+    ui = JSON.parse(game.ui());
+    handle(ui);
+    if (renderer) {
+      if (game.scene_version() !== sceneVersion) {
+        sceneVersion = game.scene_version();
+        game.build_scene();
+        renderer.setScene(game.static_instances(), game.terrain());
+      }
+      game.build_frame();
+      renderer.frame(game.view(), game.instances(), game.draws());
+    }
+    flushNet();
+    requestAnimationFrame(frame);
+  }
+  document.body.dataset.ready = "true";
+  requestAnimationFrame(frame);
+}
+
+start();
