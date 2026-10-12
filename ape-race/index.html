@@ -9,7 +9,9 @@
        leaving by navigation, so the browser check still watches requests. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self' wss://nos.lol wss://relay.mostr.pub wss://purplerelay.com wss://nostr.data.haus wss://relay.agorist.space; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Ape Race</title>
-  <link rel="icon" href="data:,">
+  <!-- The tab icon (a banana) is made by the core and set by app.js;
+       "data:," stops the browser asking for /favicon.ico meanwhile. -->
+  <link id="tab-icon" rel="icon" href="data:,">
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-ready="false" data-screen="">

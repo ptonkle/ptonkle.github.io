@@ -330,3 +330,7 @@ table.cells tr.me td { color: var(--banana); font-weight: 800; }
 @keyframes hum { from { transform: translate(0, 0); } to { transform: translate(0.5px, -0.5px); } }
 @keyframes shake { from { transform: translate(-1.5px, 1px) rotate(-0.6deg); } to { transform: translate(1.5px, -1px) rotate(0.6deg); } }
 @keyframes pulse { from { transform: translateX(-50%) rotate(-6deg) scale(1); } to { transform: translateX(-50%) rotate(-3deg) scale(1.15); } }
+
+/* the setup panel keeps one width whatever the ape's name (TRIAGE T2) */
+.panel.setup { width: 25rem; }
+.picker .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -477,6 +477,7 @@ async function start() {
     document.body.dataset.ready = "true";
     return;
   }
+  el("tab-icon").href = first.tab_icon;
   const N = JSON.parse(numbers());
   let renderer = null;
   try {

@@ -53,6 +53,8 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
   const uVP = uniform("uVP");
   const uEye = uniform("uEye");
   const uFogRange = uniform("uFogRange");
+  const uFog = uniform("uFog");
+  const uSky = uniform("uSky");
   const V = N.view;
 
   let at = 0;
@@ -101,6 +103,11 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
     frame(view, values, draws) {
       gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffers[N.buffers.dynamic]);
       gl.bufferData(gl.ARRAY_BUFFER, values, gl.STREAM_DRAW);
+      // the fog and sky colours come with each frame (they change at speed)
+      const [fr, fg, fb] = view.subarray(...V.fog_colour);
+      gl.clearColor(fr, fg, fb, 1);
+      gl.uniform3fv(uFog, view.subarray(...V.fog_colour));
+      gl.uniform3fv(uSky, view.subarray(...V.sky));
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.uniformMatrix4fv(uVP, false, view.subarray(...V.matrix));
       gl.uniform3fv(uEye, view.subarray(...V.eye));
