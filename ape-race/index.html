@@ -23,11 +23,16 @@
       <div class="pair" id="hud-time"><span class="k"></span><span class="v"></span></div>
       <div class="pair" id="hud-best"><span class="k"></span><span class="v"></span></div>
     </div>
-    <div class="item-slot" id="hud-item"><span class="k"></span><span class="v"></span></div>
+    <div class="item-slot" id="hud-item"><span class="k"></span><span id="hud-item-icon" class="icon"></span><span class="v"></span></div>
     <div class="big" id="hud-big"></div>
     <div class="hint" id="hud-hint"></div>
     <div class="reticle" id="hud-reticle"></div>
     <canvas id="minimap" class="minimap"></canvas>
+    <div id="replay-bar" class="replay-bar" hidden>
+      <span id="replay-at"></span>
+      <input type="range" id="replay-seek" min="0" max="1000" value="0" aria-label="Replay position">
+      <span id="replay-of"></span>
+    </div>
     <div id="speedo" class="speedo hype-0">
       <!-- the face and the banana come from the core as SVG markup -->
       <svg viewBox="0 0 200 200" aria-hidden="true">

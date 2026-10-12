@@ -69,6 +69,14 @@ export class Game {
         wasm.game_key(this.__wbg_ptr, ptr0, len0, down);
     }
     /**
+     * @param {string} text
+     */
+    load_replays(text) {
+        const ptr0 = passStringToWasm0(text, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.game_load_replays(this.__wbg_ptr, ptr0, len0);
+    }
+    /**
      * @param {number} button
      * @param {boolean} down
      */

@@ -335,6 +335,12 @@ table.cells tr.me td { color: var(--banana); font-weight: 800; }
 .panel.setup { width: 25rem; }
 .picker .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* the held item's picture (TRIAGE T19) */
+.item-slot .icon { display: block; width: 4.5rem; height: 4.5rem; margin: 0.2rem auto; }
+.item-slot .icon:empty { display: none; }
+.item-slot .icon svg { width: 100%; height: 100%; }
+.item-slot .v { font-size: 0.9rem; }
+
 /* TRIAGE row 15 (a try): the glow and the shake grow with the exact speed,
    through --hype (0 to 1, from the core), rather than in three steps */
 .speedo.hype-1, .speedo.hype-2, .speedo.hype-3 {
@@ -345,3 +351,39 @@ table.cells tr.me td { color: var(--banana); font-weight: 800; }
   from { transform: translate(calc(-2px * var(--hype, 0)), calc(1.5px * var(--hype, 0))) rotate(calc(-0.8deg * var(--hype, 0))); }
   to { transform: translate(calc(2px * var(--hype, 0)), calc(-1.5px * var(--hype, 0))) rotate(calc(0.8deg * var(--hype, 0))); }
 }
+
+/* ---- replays (TRIAGE T15) ---- */
+
+body[data-screen="race"] .menus:has(.panel.replay) {
+  background: none;
+  align-content: flex-end;
+  padding-bottom: 5.5rem;
+}
+.panel.replay {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  padding: 0.6rem 1rem;
+}
+.panel.replay .button { width: auto; margin-top: 0; font-size: 1rem; padding: 0.45rem 1rem; }
+.panel.replay .field { margin: 0; }
+.panel.replays { display: flex; flex-direction: column; gap: 0.3rem; max-width: 40rem; max-height: 80vh; overflow-y: auto; }
+.panel.replays .button { font-size: 1rem; text-align: left; }
+.button:disabled { opacity: 0.45; cursor: default; transform: none; }
+.replay-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 1.6rem;
+  transform: translateX(-50%);
+  width: min(60vw, 40rem);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  pointer-events: auto;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 4px #000;
+}
+.replay-bar input { flex: 1; accent-color: var(--accent); }
+.replay-bar[hidden] { display: none; }
+.panel.replay h2 { margin: 0 0.4rem 0 0; }

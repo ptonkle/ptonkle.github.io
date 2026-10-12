@@ -6,6 +6,9 @@ import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_sh
 import { makeRenderer } from "./gl.js";
 
 const SAVE_KEY = "ape-race.settings";
+// The kept replays (TRIAGE T15) live under their own key: the core writes
+// and reads the text, the page only stores it.
+const REPLAYS_KEY = "ape-race.replays";
 const el = (id) => document.getElementById(id);
 const make = (tag, cls, text) => {
   const e = document.createElement(tag);
@@ -14,17 +17,17 @@ const make = (tag, cls, text) => {
   return e;
 };
 
-function readStore() {
+function readStore(key) {
   try {
-    return localStorage.getItem(SAVE_KEY) || "";
+    return localStorage.getItem(key) || "";
   } catch (e) {
     return "";
   }
 }
 
-function writeStore(text) {
+function writeStore(key, text) {
   try {
-    localStorage.setItem(SAVE_KEY, text);
+    localStorage.setItem(key, text);
   } catch (e) {
     // Storage can be blocked; settings then last for this visit only.
   }
@@ -53,7 +56,7 @@ function afterAct() {
 }
 
 function button(item) {
-  const b = make("button", "button", item.text);
+  const b = make("button", item.quiet ? "button quiet" : "button", item.text);
   b.type = "button";
   b.id = item.id;
   b.disabled = item.disabled === true;
@@ -231,10 +234,32 @@ function drawHud(h) {
   pair("hud-best", h.best);
   pair("hud-item", h.item);
   el("hud-item").className = h.item_key ? "item-slot full" : "item-slot";
+  // the item's picture, made by the core (TRIAGE T19)
+  const icon = el("hud-item-icon");
+  if (icon.dataset.key !== h.item_key) {
+    icon.dataset.key = h.item_key;
+    icon.innerHTML = h.item_icon;
+  }
   el("hud-big").textContent = h.big;
   el("hud-hint").textContent = h.hint;
   el("hud-reticle").className = h.cooldown ? "reticle cool" : "reticle";
   drawMinimap(h.minimap);
+  drawReplayBar(h.replay);
+}
+
+// The replay's seek bar: the core gives the place (out of max); a drag
+// sends the new place when let go. While held, the core's place waits.
+let seeking = false;
+
+function drawReplayBar(r) {
+  const bar = el("replay-bar");
+  bar.hidden = !r;
+  if (!r) return;
+  const seek = el("replay-seek");
+  if (seek.max !== String(r.max)) seek.max = r.max;
+  if (!seeking) seek.value = r.value;
+  el("replay-at").textContent = r.at;
+  el("replay-of").textContent = r.of;
 }
 
 // The core draws the dial's face once and turns the banana each frame.
@@ -322,6 +347,14 @@ function bindInput() {
     game.pointer_lock(document.pointerLockElement === canvas);
   });
   window.addEventListener("blur", () => game.blur());
+  const seek = el("replay-seek");
+  seek.addEventListener("pointerdown", () => {
+    seeking = true;
+  });
+  seek.addEventListener("change", () => {
+    seeking = false;
+    send("replay.seek", seek.value);
+  });
   window.addEventListener("contextmenu", (e) => {
     if (ui && ui.screen === "race") e.preventDefault();
   });
@@ -447,7 +480,8 @@ function handle(view) {
     el("message").textContent = view.error;
     return;
   }
-  if (view.save) writeStore(view.save);
+  if (view.save) writeStore(SAVE_KEY, view.save);
+  if (view.save_replays) writeStore(REPLAYS_KEY, view.save_replays);
   if (view.sounds) view.sounds.forEach(play);
   // Messages first: a Leave goes out before the transport closes.
   if (view.net_requests) {
@@ -472,7 +506,8 @@ async function start() {
   );
   const entropy = new Uint32Array(1);
   crypto.getRandomValues(entropy);
-  game = new Game(strings, readStore(), entropy[0]);
+  game = new Game(strings, readStore(SAVE_KEY), entropy[0]);
+  game.load_replays(readStore(REPLAYS_KEY));
   const first = JSON.parse(game.ui());
   if (first.error) {
     el("message").textContent = first.error;

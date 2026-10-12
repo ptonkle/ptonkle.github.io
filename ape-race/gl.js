@@ -56,7 +56,9 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
   const uFog = uniform("uFog");
   const uSky = uniform("uSky");
   const uTrip = uniform("uTrip");
-  const uWild = uniform("uWild");
+  const uWildGround = uniform("uWildGround");
+  const uWildWood = uniform("uWildWood");
+  const uWildLeaves = uniform("uWildLeaves");
   const uScenery = uniform("uScenery");
   const V = N.view;
 
@@ -72,16 +74,15 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
 
   function drawList(draws) {
     for (let i = 0; i < draws.length; i += N.draw_values) {
-      const [buffer, meshId, byteOffset, count, first, vertices] = draws.subarray(i, i + N.draw_values);
+      const [buffer, meshId, byteOffset, count, first, vertices, kind] = draws.subarray(i, i + N.draw_values);
       const mesh = meshes[meshId];
       if (!mesh.vertices) continue;
       gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffer);
       for (const a of vertexAttributes) {
         gl.vertexAttribPointer(a.loc, a.size, gl.FLOAT, false, N.vertex.stride, a.offset);
       }
-      // only the scenery (the static buffer) turns wild at speed; the
-      // vines, apes and items keep their colours (TRIAGE row 18, a try)
-      gl.uniform1f(uScenery, buffer === N.buffers.static ? 1 : 0);
+      // what this draw is, for the colours at speed (the core says)
+      gl.uniform1f(uScenery, kind);
       gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffers[buffer]);
       for (const a of instanceAttributes) {
         gl.vertexAttribPointer(a.loc, a.size, gl.FLOAT, false, N.instance.stride, a.offset + byteOffset);
@@ -115,7 +116,9 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
       gl.uniform3fv(uFog, view.subarray(...V.fog_colour));
       gl.uniform3fv(uSky, view.subarray(...V.sky));
       gl.uniform1f(uTrip, view[V.trip]);
-      gl.uniform3fv(uWild, view.subarray(...V.wild));
+      gl.uniform3fv(uWildGround, view.subarray(...V.wild_ground));
+      gl.uniform3fv(uWildWood, view.subarray(...V.wild_wood));
+      gl.uniform3fv(uWildLeaves, view.subarray(...V.wild_leaves));
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.uniformMatrix4fv(uVP, false, view.subarray(...V.matrix));
       gl.uniform3fv(uEye, view.subarray(...V.eye));
