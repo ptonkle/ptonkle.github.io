@@ -206,7 +206,15 @@ function drawMenus() {
   box.replaceChildren();
   (ui.panels || []).forEach((p) => {
     const panel = make("div", "panel " + p.kind);
-    if (p.heading) panel.append(make("h2", "", p.heading));
+    if (p.heading) {
+      const h = make("h2", "", p.heading);
+      // a heading the core makes clickable (the title's secret)
+      if (p.click) {
+        h.id = p.click;
+        h.addEventListener("click", () => send(p.click, ""));
+      }
+      panel.append(h);
+    }
     if (p.sub) panel.append(make("div", "sub", p.sub));
     p.items.forEach((item) => panel.append(builders[item.type](item)));
     box.append(panel);
