@@ -251,6 +251,8 @@ function drawSpeedo(sp) {
   el("speedo-unit").textContent = sp.unit;
   el("speedo-shout").textContent = sp.shout;
   el("speedo").className = "speedo hype-" + sp.hype;
+  // glow and shake follow the exact speed (TRIAGE row 15, a try)
+  el("speedo").style.setProperty("--hype", sp.amount);
 }
 
 function drawMinimap(m) {

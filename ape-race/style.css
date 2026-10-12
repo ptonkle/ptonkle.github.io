@@ -334,3 +334,14 @@ table.cells tr.me td { color: var(--banana); font-weight: 800; }
 /* the setup panel keeps one width whatever the ape's name (TRIAGE T2) */
 .panel.setup { width: 25rem; }
 .picker .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* TRIAGE row 15 (a try): the glow and the shake grow with the exact speed,
+   through --hype (0 to 1, from the core), rather than in three steps */
+.speedo.hype-1, .speedo.hype-2, .speedo.hype-3 {
+  filter: drop-shadow(0 0 calc(6px + 22px * var(--hype, 0)) rgba(255, calc(220 - 160 * var(--hype, 0)), 60, calc(0.4 + 0.55 * var(--hype, 0))));
+  animation: hype-shake calc(0.16s - 0.1s * var(--hype, 0)) infinite alternate;
+}
+@keyframes hype-shake {
+  from { transform: translate(calc(-2px * var(--hype, 0)), calc(1.5px * var(--hype, 0))) rotate(calc(-0.8deg * var(--hype, 0))); }
+  to { transform: translate(calc(2px * var(--hype, 0)), calc(-1.5px * var(--hype, 0))) rotate(calc(0.8deg * var(--hype, 0))); }
+}
