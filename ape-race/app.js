@@ -314,7 +314,7 @@ function bindInput() {
   window.addEventListener("mousedown", (e) => game.mouse_button(e.button, true));
   window.addEventListener("mouseup", (e) => game.mouse_button(e.button, false));
   canvas.addEventListener("click", () => {
-    if (ui && ui.want_pointer && document.pointerLockElement !== canvas) lockPointer();
+    if (ui && ui.want_pointer && document.pointerLockElement !== canvas && !navigator.webdriver) lockPointer();
   });
   document.addEventListener("pointerlockchange", () => {
     game.pointer_lock(document.pointerLockElement === canvas);
