@@ -545,6 +545,13 @@ async function start() {
   // for the automated online check only.
   game.act("flag.client", crypto.randomUUID());
   if (new URLSearchParams(location.search).has("codes")) game.act("flag.codes", "on");
+  // invite links: the page's own address, and a room to join if opened from one
+  game.act("flag.page_url", location.origin + location.pathname);
+  const linked = new URLSearchParams(location.hash.slice(1)).get("room");
+  if (linked) {
+    history.replaceState(null, "", location.pathname + location.search);
+    game.act("flag.room_link", linked);
+  }
 
   let sceneVersion = null;
   function frame(now) {
