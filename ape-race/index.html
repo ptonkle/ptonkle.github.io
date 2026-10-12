@@ -20,13 +20,22 @@
       <div class="pair" id="hud-place"><span class="k"></span><span class="v"></span></div>
       <div class="pair" id="hud-time"><span class="k"></span><span class="v"></span></div>
       <div class="pair" id="hud-best"><span class="k"></span><span class="v"></span></div>
-      <div class="pair" id="hud-speed"><span class="k"></span><span class="v"></span></div>
     </div>
     <div class="item-slot" id="hud-item"><span class="k"></span><span class="v"></span></div>
     <div class="big" id="hud-big"></div>
     <div class="hint" id="hud-hint"></div>
     <div class="reticle" id="hud-reticle"></div>
     <canvas id="minimap" class="minimap"></canvas>
+    <div id="speedo" class="speedo hype-0">
+      <!-- the face and the banana come from the core as SVG markup -->
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <g id="speedo-face"></g>
+        <g id="speedo-needle" class="needle"></g>
+        <circle cx="100" cy="100" r="11" class="hub"/>
+      </svg>
+      <div class="speedo-read"><span id="speedo-value">0</span><span id="speedo-unit"></span></div>
+      <div id="speedo-shout" class="shout"></div>
+    </div>
   </section>
 
   <main id="menus" class="menus"></main>

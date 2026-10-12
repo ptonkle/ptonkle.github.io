@@ -268,3 +268,65 @@ table.cells tr.me td { color: var(--banana); font-weight: 800; }
 .copy-field .copy-code { font-weight: bold; letter-spacing: 0.2em; }
 .button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 .panel.setup .cells { margin: 0.5rem 0; }
+
+/* ---- the speedometer: a banana on a dial ---- */
+
+.speedo {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  width: min(26vw, 17rem);
+  aspect-ratio: 1;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
+  transition: filter 0.2s;
+}
+.speedo svg { width: 100%; height: 100%; display: block; }
+.speedo-rim { fill: #2a1d0e; stroke: #ffd447; stroke-width: 3; }
+.speedo-face { fill: #14240f; }
+.speedo .tick { stroke: rgba(255, 255, 255, 0.55); stroke-width: 1.5; }
+.speedo .tick.major { stroke: #fff6d0; stroke-width: 3; }
+.speedo-num { fill: #fff6d0; font: 700 11px "Trebuchet MS", sans-serif; text-anchor: middle; }
+.speedo .needle {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+  transition: transform 0.08s linear;
+}
+.speedo .banana { fill: #ffd93b; stroke: #a8790a; stroke-width: 1.5; }
+.speedo .banana-shine { fill: none; stroke: #fff3a8; stroke-width: 2; stroke-linecap: round; opacity: 0.8; }
+.speedo .banana-stem { fill: #5a3b14; }
+.speedo .hub { fill: #2a1d0e; stroke: #ffd447; stroke-width: 3; }
+.speedo-read {
+  position: absolute;
+  left: 50%;
+  top: 70%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-variant-numeric: tabular-nums;
+}
+#speedo-value { font-size: 1.9rem; font-weight: 900; font-style: italic; color: #fff6d0; }
+#speedo-unit { font-size: 0.8rem; color: var(--muted); }
+.shout {
+  position: absolute;
+  left: 50%;
+  top: -0.6rem;
+  transform: translateX(-50%) rotate(-6deg);
+  font-weight: 900;
+  font-style: italic;
+  font-size: 1.4rem;
+  white-space: nowrap;
+  color: var(--banana);
+  text-shadow: 0 3px 0 #6b4a18, 0 0 12px rgba(255, 200, 60, 0.8);
+}
+
+.speedo.hype-1 { filter: drop-shadow(0 0 10px rgba(255, 220, 80, 0.55)); }
+.speedo.hype-2 { filter: drop-shadow(0 0 16px rgba(255, 150, 40, 0.8)); animation: hum 0.12s infinite alternate; }
+.speedo.hype-2 #speedo-value { color: #ffd447; }
+.speedo.hype-3 { filter: drop-shadow(0 0 24px rgba(255, 70, 40, 0.95)); animation: shake 0.07s infinite alternate; }
+.speedo.hype-3 #speedo-value { color: #ff6a3a; }
+.speedo.hype-3 .shout { animation: pulse 0.35s infinite alternate; }
+
+@keyframes hum { from { transform: translate(0, 0); } to { transform: translate(0.5px, -0.5px); } }
+@keyframes shake { from { transform: translate(-1.5px, 1px) rotate(-0.6deg); } to { transform: translate(1.5px, -1px) rotate(0.6deg); } }
+@keyframes pulse { from { transform: translateX(-50%) rotate(-6deg) scale(1); } to { transform: translateX(-50%) rotate(-3deg) scale(1.15); } }

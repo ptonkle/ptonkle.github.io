@@ -42,11 +42,14 @@ function send(id, value) {
   afterAct();
 }
 
-// The pointer is locked only by a click on the 3D view itself (the HUD
-// says so), never by a menu button: the mouse stays free for menus.
+// A click that takes the player back into the race (Start, Resume,
+// Restart) captures the mouse again, so the camera can be turned at once
+// (TRIAGE row 3). Automated browsers are left alone: a pointer-lock request
+// from a menu click stalls headless Chromium (SECOND-ORDER R2).
 function afterAct() {
   ui = JSON.parse(game.ui());
   handle(ui);
+  if (ui.want_pointer && document.pointerLockElement !== canvas && !navigator.webdriver) lockPointer();
 }
 
 function button(item) {
@@ -224,7 +227,7 @@ function pair(id, kv) {
 function drawHud(h) {
   pair("hud-place", h.place);
   pair("hud-time", h.time);
-  pair("hud-speed", h.speed);
+  drawSpeedo(h.speedo);
   pair("hud-best", h.best);
   pair("hud-item", h.item);
   el("hud-item").className = h.item_key ? "item-slot full" : "item-slot";
@@ -232,6 +235,22 @@ function drawHud(h) {
   el("hud-hint").textContent = h.hint;
   el("hud-reticle").className = h.cooldown ? "reticle cool" : "reticle";
   drawMinimap(h.minimap);
+}
+
+// The core draws the dial's face once and turns the banana each frame.
+let speedoFace = "";
+
+function drawSpeedo(sp) {
+  if (speedoFace !== ui.speedo_face) {
+    speedoFace = ui.speedo_face;
+    el("speedo-face").innerHTML = ui.speedo_face;
+    el("speedo-needle").innerHTML = ui.speedo_needle;
+  }
+  el("speedo-needle").style.transform = sp.needle;
+  el("speedo-value").textContent = sp.value;
+  el("speedo-unit").textContent = sp.unit;
+  el("speedo-shout").textContent = sp.shout;
+  el("speedo").className = "speedo hype-" + sp.hype;
 }
 
 function drawMinimap(m) {
