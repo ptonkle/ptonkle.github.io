@@ -222,7 +222,8 @@ function drawMenus() {
 
 function pair(id, kv) {
   const node = el(id);
-  const [k, v] = node.children;
+  const k = node.querySelector(".k");
+  const v = node.querySelector(".v");
   if (k.textContent !== kv[0]) k.textContent = kv[0];
   if (v.textContent !== kv[1]) v.textContent = kv[1];
 }
