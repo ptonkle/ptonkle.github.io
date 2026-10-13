@@ -247,6 +247,13 @@ table.cells tr.me td { color: var(--banana); font-weight: 800; }
   color: var(--banana);
   text-shadow: 0 5px 0 #6b4a18, 0 10px 24px rgba(0, 0, 0, 0.5);
 }
+/* a whole message (Floor is Lava's jaguar, TRIAGE T37): one line, smaller */
+.big.message {
+  top: 15%;
+  font-size: clamp(1.6rem, 6vw, 4.5rem);
+  white-space: nowrap;
+  color: #ff9a3c;
+}
 
 .hint {
   position: absolute;

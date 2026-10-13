@@ -273,6 +273,7 @@ function drawHud(h) {
     icon.innerHTML = h.item_icon;
   }
   el("hud-big").textContent = h.big;
+  el("hud-big").className = h.big_class;
   el("hud-hint").textContent = h.hint;
   // a course reward's name, briefly (the core says when)
   if (el("hud-reward").textContent !== h.reward) el("hud-reward").textContent = h.reward;
