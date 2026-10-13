@@ -61,6 +61,9 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
   const uWildLeaves = uniform("uWildLeaves");
   const uScenery = uniform("uScenery");
   const uMute = uniform("uMute");
+  const uLightDir = uniform("uLightDir");
+  const uLight = uniform("uLight");
+  const uGround = uniform("uGround");
   const V = N.view;
 
   let at = 0;
@@ -121,6 +124,10 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
       gl.uniform3fv(uWildWood, view.subarray(...V.wild_wood));
       gl.uniform3fv(uWildLeaves, view.subarray(...V.wild_leaves));
       gl.uniform1f(uMute, view[V.mute]);
+      // the light comes with each frame too (each map has its own)
+      gl.uniform3fv(uLightDir, view.subarray(...V.light_dir));
+      gl.uniform3fv(uLight, view.subarray(...V.light));
+      gl.uniform3fv(uGround, view.subarray(...V.ground));
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.uniformMatrix4fv(uVP, false, view.subarray(...V.matrix));
       gl.uniform3fv(uEye, view.subarray(...V.eye));

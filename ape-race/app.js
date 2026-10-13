@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=hjdgkahddjjn";
-import { makeRenderer } from "./gl.js?v=hjdgkahddjjn";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=pphcmlhgigle";
+import { makeRenderer } from "./gl.js?v=pphcmlhgigle";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -264,6 +264,7 @@ function drawHud(h) {
   drawSpeedo(h.speedo);
   pair("hud-best", h.best);
   pair("hud-bananas", h.bananas);
+  pair("hud-map", h.map);
   pair("hud-item", h.item);
   el("hud-item").className = h.item_key ? "item-slot full" : "item-slot";
   // the item's picture, made by the core (TRIAGE T19)
@@ -503,7 +504,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=hjdgkahddjjn");
+    if (!online) online = await import("./online.js?v=pphcmlhgigle");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -554,10 +555,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=hjdgkahddjjn" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=pphcmlhgigle" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=hjdgkahddjjn").then((r) => r.text()),
+      fetch(f + "?v=pphcmlhgigle").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);
@@ -588,6 +589,11 @@ async function start() {
   resize();
   bindInput();
   if (new URLSearchParams(location.search).has("lineup")) game.act("screen.lineup", "");
+  // `?map=city`: a look at another map (a test hook until the map selector)
+  const map = new URLSearchParams(location.search).get("map");
+  if (map) game.act("flag.map", map);
+  const at = new URLSearchParams(location.search).get("at");
+  if (at) game.act("flag.fly_at", at);
   // `?tile=<spec>`: a home-page screenshot, held still (scripts/tiles.py)
   const tile = new URLSearchParams(location.search).get("tile");
   if (tile) game.act("screen.tile", tile);

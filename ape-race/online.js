@@ -44,7 +44,7 @@
 //
 // Every frame on a channel starts with one character saying what it is.
 
-import { ONLINE, iceServers } from "./online-config.js?v=hjdgkahddjjn";
+import { ONLINE, iceServers } from "./online-config.js?v=pphcmlhgigle";
 
 const HELLO = "h";
 const ACK = "k";

@@ -43,7 +43,10 @@ void main() {
   vec3 ambient = mix(uGround, uSky, up);
   vec3 base = vColor.rgb;
   vec3 lit = base * (ambient * 0.66 + uLight * (diffuse * 0.48 + wrapped * 0.2));
-  lit = mix(lit, base * 1.08 + vec3(0.04), vColor.a);
+  // a glow over 1 is the sky's (the City's low sun and its halo): full
+  // colour and no fog, as if at infinity
+  float sky = step(1.5, vColor.a);
+  lit = mix(lit, base * 1.08 + vec3(0.04), min(vColor.a, 1.0));
   if (uMute > 0.0 && uScenery < 2.5) {
     float grey = dot(lit, vec3(0.3, 0.59, 0.11));
     float amount = uScenery > 0.5 ? 0.82 : 0.45;
@@ -61,5 +64,5 @@ void main() {
     vec3 vivid = pal * clamp(luma / own, 0.35, 1.35);
     lit = mix(lit, vivid, wild * 0.85);
   }
-  outColor = vec4(mix(lit, uFog, f), 1.0);
+  outColor = vec4(mix(lit, uFog, f * (1.0 - sky)), 1.0);
 }
