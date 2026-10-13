@@ -70,7 +70,7 @@
       </span>
     </a>
     <a class="game" href="ape-race/">
-      <img src="img/ape-race/lineup.png" width="990" height="557" alt="The six apes of Ape Race, side by side">
+      <img id="ape-race-shot" src="img/ape-race/lineup.png" width="990" height="557" alt="Apes racing through the jungle on vines in Ape Race">
       <span class="text">
         <strong>Ape Race</strong>
         <span>3D jungle vine-swinging race in the browser · momentum, items, six apes · against the AI or online for up to four</span>
@@ -81,6 +81,9 @@
     // A different battle on each visit.
     const n = Math.floor(Math.random() * 12) + 1;
     document.getElementById("mandible-shot").src = "img/mandible/battle-" + String(n).padStart(2, "0") + ".webp";
+    // And a different moment of an Ape Race (made by scripts/tiles.py).
+    const a = Math.floor(Math.random() * 15) + 1;
+    document.getElementById("ape-race-shot").src = "img/ape-race/race-" + String(a).padStart(2, "0") + ".webp";
   </script>
 </body>
 </html>

@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=ngeacpapofcc";
-import { makeRenderer } from "./gl.js?v=ngeacpapofcc";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=hjdgkahddjjn";
+import { makeRenderer } from "./gl.js?v=hjdgkahddjjn";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -503,7 +503,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=ngeacpapofcc");
+    if (!online) online = await import("./online.js?v=hjdgkahddjjn");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -546,7 +546,7 @@ function handle(view) {
   document.body.dataset.dock = view.dock;
   document.body.style.setProperty("--dock-w", view.dock_w);
   document.body.style.setProperty("--dock-top", view.dock_top);
-  el("hud").hidden = view.screen !== "race";
+  el("hud").hidden = view.screen !== "race" || !view.hud;
   if (view.hud) drawHud(view.hud);
   drawMenus();
   setWind(view.wind);
@@ -554,10 +554,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=ngeacpapofcc" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=hjdgkahddjjn" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=ngeacpapofcc").then((r) => r.text()),
+      fetch(f + "?v=hjdgkahddjjn").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);
@@ -588,6 +588,9 @@ async function start() {
   resize();
   bindInput();
   if (new URLSearchParams(location.search).has("lineup")) game.act("screen.lineup", "");
+  // `?tile=<spec>`: a home-page screenshot, held still (scripts/tiles.py)
+  const tile = new URLSearchParams(location.search).get("tile");
+  if (tile) game.act("screen.tile", tile);
   // This browser's id for online play, and `?codes`: the pasted-code path,
   // for the automated online check only.
   game.act("flag.client", crypto.randomUUID());
