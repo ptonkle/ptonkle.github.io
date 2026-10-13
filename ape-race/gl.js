@@ -32,6 +32,10 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
   gl.useProgram(program);
   gl.enable(gl.DEPTH_TEST);
   gl.disable(gl.CULL_FACE);
+  // colours come premultiplied: a solid shape (alpha 1) replaces what is
+  // behind it, a soft glow (alpha 0) adds to it
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
   const vao = gl.createVertexArray();
   gl.bindVertexArray(vao);

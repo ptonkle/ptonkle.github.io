@@ -34,6 +34,18 @@ void main() {
   float d = length(vWorld - uEye);
   float f = clamp((d - uFogRange.x) / (uFogRange.y - uFogRange.x), 0.0, 1.0);
   f = f * f * (3.0 - 2.0 * f);
+  // a soft glow (uScenery 4, the City's wires): its colour added over what
+  // is behind, strongest where it faces the eye and nothing at its outline,
+  // fading with the fog; one side only, so it adds once. A strength over 1
+  // adds evenly (the part over 1): the sun's sheen on the water.
+  if (uScenery > 3.5) {
+    if (!gl_FrontFacing && vColor.a <= 1.0) discard;
+    float facing = abs(dot(n, normalize(uEye - vWorld)));
+    float a = vColor.a > 1.0 ? vColor.a - 1.0 : vColor.a * facing * facing;
+    a *= 1.0 - f;
+    outColor = vec4(vColor.rgb * a, 0.0);
+    return;
+  }
   // smooth light, so each flat facet of a faceted shape takes its own shade;
   // the wrapped term keeps facets turned from the sun apart from each other
   float ndl = dot(n, uLightDir);
