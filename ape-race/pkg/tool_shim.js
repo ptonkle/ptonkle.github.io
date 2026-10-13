@@ -42,6 +42,13 @@ export class Game {
         wasm.game_build_scene(this.__wbg_ptr);
     }
     /**
+     * @param {number} dx
+     * @param {number} dy
+     */
+    drag(dx, dy) {
+        wasm.game_drag(this.__wbg_ptr, dx, dy);
+    }
+    /**
      * @returns {Uint32Array}
      */
     draws() {
@@ -234,6 +241,12 @@ export class Game {
         var v1 = getArrayF32FromWasm0(ret[0], ret[1]).slice();
         wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
         return v1;
+    }
+    /**
+     * @param {number} dy
+     */
+    wheel(dy) {
+        wasm.game_wheel(this.__wbg_ptr, dy);
     }
 }
 if (Symbol.dispose) Game.prototype[Symbol.dispose] = Game.prototype.free;

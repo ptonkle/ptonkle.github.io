@@ -380,6 +380,12 @@ function bindInput() {
   window.addEventListener("mousemove", (e) => {
     if (document.pointerLockElement === canvas) game.mouse_move(e.movementX, e.movementY);
   });
+  // a drag over the free (uncaptured) view, and the wheel: the core decides
+  // what they do (in a replay, steer and zoom the orbit camera, TRIAGE T23)
+  canvas.addEventListener("mousemove", (e) => {
+    if (document.pointerLockElement !== canvas && e.buttons === 1) game.drag(e.movementX, e.movementY);
+  });
+  canvas.addEventListener("wheel", (e) => game.wheel(e.deltaY), { passive: true });
   window.addEventListener("mousedown", (e) => game.mouse_button(e.button, true));
   window.addEventListener("mouseup", (e) => game.mouse_button(e.button, false));
   canvas.addEventListener("click", () => {

@@ -434,3 +434,33 @@ body[data-screen="race"] .menus:has(.panel.replay) {
 .replay-bar input { flex: 1; accent-color: var(--accent); }
 .replay-bar[hidden] { display: none; }
 .panel.replay h2 { margin: 0 0.4rem 0 0; }
+
+/* ---- spectating after the finish (TRIAGE T34) and the followed racer
+   in a replay (T24) ---- */
+
+body[data-screen="race"] .menus:has(.panel.spectate) {
+  background: none;
+  justify-content: flex-end;
+  align-content: center;
+  padding: 5.5rem 1rem 16rem;
+}
+.panel.spectate {
+  min-width: 0;
+  width: min(24rem, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.8rem 1rem;
+  font-size: 0.9rem;
+}
+.panel.spectate h2 { font-size: 1.3rem; margin: 0; }
+.panel.spectate .button { font-size: 1rem; padding: 0.4rem 0.9rem; margin-top: 0; }
+.panel.spectate .picker,
+.panel.replay .picker { margin: 0; }
+.panel.spectate .picker .name,
+.panel.replay .picker .name { font-size: 1.05rem; }
+.panel.replay .picker { min-width: 15rem; }
+.panel.spectate .picker button,
+.panel.replay .picker button { width: 2rem; height: 2rem; font-size: 1.1rem; }
+/* the replay's hint sits above its bar */
+body:has(#replay-bar:not([hidden])) .hint { bottom: auto; top: 5.5rem; }

@@ -171,5 +171,9 @@
   "replays.none": "No replays yet: finish a race or a Time Trial.",
   "course.jungle": "Jungle",
   "mode.race": "Race",
-  "mode.trial": "Time Trial"
+  "mode.trial": "Time Trial",
+  "mode.online": "Online",
+  "focus.watching": "Watching",
+  "hud.spectate": "A / D: watch another racer",
+  "hud.replay": "A / D: switch racer · Drag: turn the camera · Wheel: zoom"
 }
