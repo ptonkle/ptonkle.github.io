@@ -55,7 +55,27 @@ html, body {
 
 .menus > * { pointer-events: auto; }
 
-body[data-screen="setup"] .menus { justify-content: flex-start; padding-left: 4vw; }
+/* Beside the previewed ape (Race Setup, Lobby: TRIAGE T47). The core picks
+   the dock and its size from the view, and frames the ape in the open part. */
+body[data-dock="side"] .menus {
+  right: auto;
+  width: var(--dock-w);
+  padding: 1.5rem;
+  align-content: flex-start;
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+body[data-dock="below"] .menus {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
+  padding: var(--dock-top) 1rem 1rem;
+  overflow-y: auto;
+}
+body[data-dock="side"] .menus .panel,
+body[data-dock="below"] .menus .panel { width: 25rem; max-width: 100%; min-width: 0; }
 body[data-screen="race"] .menus { background: rgba(10, 24, 12, 0.35); }
 body[data-screen="race"] .menus:empty { background: none; }
 body[data-screen="lineup"] .menus { display: none; }
