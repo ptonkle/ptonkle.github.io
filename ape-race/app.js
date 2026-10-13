@@ -310,7 +310,7 @@ function drawSpeedo(sp) {
   // glow and shake follow the exact speed (TRIAGE row 15, a try)
   el("speedo").style.setProperty("--hype", sp.amount);
   // a hype call-out's splash (TRIAGE T22): the flash and the popping shout
-  el("hype-flash").style.opacity = sp.flash;
+  el("hype-flash").style.opacity = sp.screen;
   el("hype-flash").className = "hype-flash burst-" + sp.burst;
   el("speedo").dataset.burst = sp.burst;
   el("speedo").style.setProperty("--flash", sp.flash);
