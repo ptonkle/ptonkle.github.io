@@ -190,6 +190,15 @@ table.cells tr.me td { color: var(--banana); font-weight: 800; }
 .toggle { display: flex; align-items: center; justify-content: space-between; margin: 0.5rem 0; gap: 1rem; }
 .toggle span { color: var(--muted); }
 .toggle input { width: 1.2rem; height: 1.2rem; accent-color: var(--leaf); }
+/* the items crates may give (TRIAGE T42). The boxes make the host's lobby
+   taller: panels that do not fit scroll rather than run off the screen */
+.menus { overflow-y: auto; align-content: safe center; }
+.checks { margin: 0.5rem 0; }
+.checks-label, .checks-note { color: var(--muted); }
+.checks-row { display: flex; flex-wrap: wrap; gap: 0.3rem 0.9rem; margin-top: 0.3rem; }
+.check { display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem; }
+.check input { width: 1.1rem; height: 1.1rem; accent-color: var(--leaf); }
+.checks-note { display: block; font-size: 0.85rem; margin-top: 0.3rem; }
 
 /* ---- the race HUD ---- */
 
@@ -350,6 +359,24 @@ table.cells tr.me td { color: var(--banana); font-weight: 800; }
 @keyframes hum { from { transform: translate(0, 0); } to { transform: translate(0.5px, -0.5px); } }
 @keyframes shake { from { transform: translate(-1.5px, 1px) rotate(-0.6deg); } to { transform: translate(1.5px, -1px) rotate(0.6deg); } }
 @keyframes pulse { from { transform: translateX(-50%) rotate(-6deg) scale(1); } to { transform: translateX(-50%) rotate(-3deg) scale(1.15); } }
+
+/* a hype call-out's splash (TRIAGE T22): the core gives the flash's
+   strength (opacity) and the level; the shout pops big while it shows */
+.hype-flash {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse at 50% 85%, rgba(255, 236, 140, 0) 30%, rgba(255, 200, 60, 0.55) 75%, rgba(255, 140, 30, 0.8) 100%);
+}
+.hype-flash.burst-3 {
+  background: radial-gradient(ellipse at 50% 85%, rgba(255, 250, 220, 0.35) 0%, rgba(255, 170, 40, 0.5) 55%, rgba(255, 70, 30, 0.85) 100%);
+}
+.speedo:not([data-burst="0"]) .shout {
+  animation: none;
+  transform: translateX(-50%) rotate(-6deg) scale(calc(1 + 0.9 * var(--flash, 0)));
+  text-shadow: 0 3px 0 #6b4a18, 0 0 calc(12px + 30px * var(--flash, 0)) rgba(255, 200, 60, 1);
+}
 
 /* the setup panel keeps one width whatever the ape's name (TRIAGE T2) */
 .panel.setup { width: 25rem; }

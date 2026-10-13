@@ -172,6 +172,26 @@ function toggle(item) {
   return wrap;
 }
 
+// A row of checkboxes under one label (TRIAGE T42: the items crates give).
+function checks(item) {
+  const wrap = make("div", "checks");
+  wrap.append(make("span", "checks-label", item.label));
+  const row = make("div", "checks-row");
+  item.options.forEach((o) => {
+    const box = make("label", "check");
+    const input = make("input");
+    input.type = "checkbox";
+    input.id = o.id;
+    input.checked = o.value;
+    input.addEventListener("change", () => send(o.id, input.checked ? "on" : "off"));
+    box.append(input, make("span", "", o.text));
+    row.append(box);
+  });
+  wrap.append(row);
+  if (item.note) wrap.append(make("span", "checks-note", item.note));
+  return wrap;
+}
+
 function list(item) {
   const table = make("table", "pairs");
   item.rows.forEach((r) => {
@@ -196,7 +216,7 @@ function cells(item) {
   return table;
 }
 
-const builders = { button, picker, stats, select, slider, toggle, list, table: cells, field, copy };
+const builders = { button, picker, stats, select, slider, toggle, checks, list, table: cells, field, copy };
 
 function drawMenus() {
   const text = JSON.stringify(ui.panels || []);
@@ -289,6 +309,11 @@ function drawSpeedo(sp) {
   el("speedo").className = "speedo hype-" + sp.hype;
   // glow and shake follow the exact speed (TRIAGE row 15, a try)
   el("speedo").style.setProperty("--hype", sp.amount);
+  // a hype call-out's splash (TRIAGE T22): the flash and the popping shout
+  el("hype-flash").style.opacity = sp.flash;
+  el("hype-flash").className = "hype-flash burst-" + sp.burst;
+  el("speedo").dataset.burst = sp.burst;
+  el("speedo").style.setProperty("--flash", sp.flash);
 }
 
 function drawMinimap(m) {
@@ -315,7 +340,13 @@ function drawMinimap(m) {
     ctx.strokeStyle = a.me ? m.me_ring : m.ring;
     ctx.lineWidth = m.ring_width;
     ctx.beginPath();
-    ctx.arc(a.x, a.y, a.me ? m.me_dot : m.dot, 0, m.circle);
+    // a shape from the core (the colourblind mode), or a round dot
+    if (a.shape) {
+      for (let i = 0; i < a.shape.length; i += m.stride) ctx.lineTo(a.shape[i], a.shape[i + 1]);
+      ctx.closePath();
+    } else {
+      ctx.arc(a.x, a.y, a.me ? m.me_dot : m.dot, 0, m.circle);
+    }
     ctx.fill();
     ctx.stroke();
   });

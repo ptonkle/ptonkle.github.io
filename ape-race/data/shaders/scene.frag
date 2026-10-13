@@ -22,6 +22,11 @@ uniform vec3 uWildGround;
 uniform vec3 uWildWood;
 uniform vec3 uWildLeaves;
 uniform float uScenery;
+// TRIAGE T33: the colourblind mode mutes the world toward grey (the
+// scenery and the ground most, the apes and items less) and leaves the
+// vines and their flowers (uScenery 3) vivid, so they stand out by
+// brightness, not hue.
+uniform float uMute;
 out vec4 outColor;
 void main() {
   vec3 n = normalize(vNormal);
@@ -39,7 +44,13 @@ void main() {
   vec3 base = vColor.rgb;
   vec3 lit = base * (ambient * 0.66 + uLight * (diffuse * 0.48 + wrapped * 0.2));
   lit = mix(lit, base * 1.08 + vec3(0.04), vColor.a);
-  float wild = uTrip * step(0.5, uScenery);
+  if (uMute > 0.0 && uScenery < 2.5) {
+    float grey = dot(lit, vec3(0.3, 0.59, 0.11));
+    float amount = uScenery > 0.5 ? 0.82 : 0.45;
+    float dim = uScenery > 0.5 ? 0.86 : 1.0;
+    lit = mix(lit, vec3(grey) * dim, uMute * amount);
+  }
+  float wild = uTrip * step(0.5, uScenery) * (1.0 - step(2.5, uScenery));
   if (wild > 0.0) {
     vec3 pal = uWildWood;
     if (uScenery > 1.5) pal = uWildGround;

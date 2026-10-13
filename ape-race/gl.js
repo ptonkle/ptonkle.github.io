@@ -60,6 +60,7 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
   const uWildWood = uniform("uWildWood");
   const uWildLeaves = uniform("uWildLeaves");
   const uScenery = uniform("uScenery");
+  const uMute = uniform("uMute");
   const V = N.view;
 
   let at = 0;
@@ -119,6 +120,7 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
       gl.uniform3fv(uWildGround, view.subarray(...V.wild_ground));
       gl.uniform3fv(uWildWood, view.subarray(...V.wild_wood));
       gl.uniform3fv(uWildLeaves, view.subarray(...V.wild_leaves));
+      gl.uniform1f(uMute, view[V.mute]);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.uniformMatrix4fv(uVP, false, view.subarray(...V.matrix));
       gl.uniform3fv(uEye, view.subarray(...V.eye));
