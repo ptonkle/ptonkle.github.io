@@ -464,3 +464,7 @@ body[data-screen="race"] .menus:has(.panel.spectate) {
 .panel.replay .picker button { width: 2rem; height: 2rem; font-size: 1.1rem; }
 /* the replay's hint sits above its bar */
 body:has(#replay-bar:not([hidden])) .hint { bottom: auto; top: 5.5rem; }
+
+/* group K: a course reward's name (mushroom push, catch-up vine), shown
+   briefly by the core above the middle */
+.hint.reward { bottom: auto; top: 22%; color: var(--banana); font-weight: 800; }

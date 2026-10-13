@@ -263,6 +263,7 @@ function drawHud(h) {
   pair("hud-time", h.time);
   drawSpeedo(h.speedo);
   pair("hud-best", h.best);
+  pair("hud-bananas", h.bananas);
   pair("hud-item", h.item);
   el("hud-item").className = h.item_key ? "item-slot full" : "item-slot";
   // the item's picture, made by the core (TRIAGE T19)
@@ -273,6 +274,8 @@ function drawHud(h) {
   }
   el("hud-big").textContent = h.big;
   el("hud-hint").textContent = h.hint;
+  // a course reward's name, briefly (the core says when)
+  if (el("hud-reward").textContent !== h.reward) el("hud-reward").textContent = h.reward;
   el("hud-reticle").className = h.cooldown ? "reticle cool" : "reticle";
   drawMinimap(h.minimap);
   drawReplayBar(h.replay);
