@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=pghdgcanmmeh";
-import { makeRenderer } from "./gl.js?v=pghdgcanmmeh";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=mophfbcfcgjd";
+import { makeRenderer } from "./gl.js?v=mophfbcfcgjd";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -153,26 +153,32 @@ function select(item) {
 // read-only grid (a joiner's lobby) shows the pick and presses nothing.
 // The arrow keys move between cards; Enter or Space presses one.
 function tiles(item) {
+  // the chosen map large, the others as name buttons under it (the person,
+  // 2026-10-13: the three small cards were too small to see)
   const wrap = make("div", "tiles-field");
   wrap.append(make("span", "tiles-label", item.label));
   const grid = make("div", item.read_only ? "tiles read-only" : "tiles");
   grid.id = item.id;
   grid.dataset.value = item.value;
-  grid.setAttribute("role", "radiogroup");
-  grid.setAttribute("aria-label", item.label);
+  const chosen = item.options.find((o) => o.chosen) || item.options[0];
+  const hero = make("figure", "tile-hero");
+  const img = make("img");
+  img.src = chosen.picture + "?v=mophfbcfcgjd";
+  img.alt = chosen.text;
+  img.draggable = false;
+  hero.append(img, make("figcaption", "tile-hero-name", chosen.text));
+  grid.append(hero);
+  const row = make("div", "tile-row");
+  row.setAttribute("role", "radiogroup");
+  row.setAttribute("aria-label", item.label);
   item.options.forEach((o) => {
-    const b = make("button", o.chosen ? "tile chosen" : "tile");
+    const b = make("button", o.chosen ? "tile chosen" : "tile", o.text);
     b.type = "button";
     b.id = o.id;
     b.dataset.value = o.value;
     b.disabled = item.read_only === true;
     b.setAttribute("role", "radio");
     b.setAttribute("aria-checked", o.chosen ? "true" : "false");
-    const img = make("img");
-    img.src = o.picture + "?v=pghdgcanmmeh";
-    img.alt = "";
-    img.draggable = false;
-    b.append(img, make("span", "tile-name", o.text));
     b.addEventListener("click", () => send(item.id, o.value));
     b.addEventListener("keydown", (e) => {
       const to = { ArrowRight: b.nextElementSibling, ArrowDown: b.nextElementSibling, ArrowLeft: b.previousElementSibling, ArrowUp: b.previousElementSibling }[e.key];
@@ -181,8 +187,9 @@ function tiles(item) {
         to.focus();
       }
     });
-    grid.append(b);
+    row.append(b);
   });
+  grid.append(row);
   wrap.append(grid);
   return wrap;
 }
@@ -553,7 +560,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=pghdgcanmmeh");
+    if (!online) online = await import("./online.js?v=mophfbcfcgjd");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -607,10 +614,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=pghdgcanmmeh" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=mophfbcfcgjd" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=pghdgcanmmeh").then((r) => r.text()),
+      fetch(f + "?v=mophfbcfcgjd").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);
@@ -649,6 +656,9 @@ async function start() {
   // `?tile=<spec>`: a home-page screenshot, held still (scripts/tiles.py)
   const tile = new URLSearchParams(location.search).get("tile");
   if (tile) game.act("screen.tile", tile);
+  // `?gallery=<spec>`: Sector Ape's models, one at a time (app/gallery.rs)
+  const gallery = new URLSearchParams(location.search).get("gallery");
+  if (gallery) game.act("screen.gallery", gallery);
   // This browser's id for online play, and `?codes`: the pasted-code path,
   // for the automated online check only.
   game.act("flag.client", crypto.randomUUID());

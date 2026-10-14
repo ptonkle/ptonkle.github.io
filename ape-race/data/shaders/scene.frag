@@ -13,6 +13,11 @@ uniform vec3 uLight;
 uniform vec3 uSky;
 uniform vec3 uFog;
 uniform vec3 uGround;
+// Sector Ape's edge light (SECOND-ORDER SM4): lit from a sun far below,
+// a hull's top faces away from the light and would be black on black, so
+// every surface gets this colour added where it turns away from the eye
+// (its outline). Black, adding nothing, on every other map.
+uniform vec3 uRim;
 // TRIAGE rows 18 and 20 (a try): at top speed the jungle turns wild, each
 // part in its own colour so they stay distinct: the ground (uScenery 2),
 // the leaves and the wood (uScenery 1, told apart by their own green); the
@@ -52,8 +57,27 @@ void main() {
       outColor = vec4(vColor.rgb * glow, glow * 0.7);
       return;
     }
-    if (!gl_FrontFacing && vColor.a <= 1.0) discard;
     float facing = abs(dot(n, normalize(uEye - vWorld)));
+    // a strength of 3 or more is a glow in the sky (Sector Ape's haze and
+    // the sun's corona, far round the eye): the part over 3, soft to its
+    // outline, unfogged, one side only
+    // a strength from 2 to 3 is glass (the space jaguar's bubble helmet,
+    // TRIAGE T78): faint inside, a crisp bright rim where it curves away,
+    // one side only
+    if (vColor.a >= 2.0 && vColor.a < 3.0) {
+      if (!gl_FrontFacing) discard;
+      float e = 1.0 - facing;
+      float s = (vColor.a - 2.0) * (0.12 + 1.6 * smoothstep(0.62, 0.86, e)) * (1.0 - f);
+      outColor = vec4(vColor.rgb * s, 0.0);
+      return;
+    }
+    if (vColor.a >= 3.0) {
+      if (!gl_FrontFacing) discard;
+      float s = (vColor.a - 3.0) * facing * facing;
+      outColor = vec4(vColor.rgb * s, 0.0);
+      return;
+    }
+    if (!gl_FrontFacing && vColor.a <= 1.0) discard;
     float a = vColor.a > 1.0 ? vColor.a - 1.0 : vColor.a * facing * facing;
     a *= 1.0 - f;
     outColor = vec4(vColor.rgb * a, 0.0);
@@ -78,6 +102,8 @@ void main() {
   vec3 ambient = mix(uGround, uSky, up);
   vec3 base = vColor.rgb;
   vec3 lit = base * (ambient * 0.66 + uLight * (diffuse * 0.48 + wrapped * 0.2));
+  float edge = 1.0 - abs(dot(n, normalize(uEye - vWorld)));
+  lit += uRim * (edge * edge) * (0.4 + base);
   // a glow over 1 is the sky's (the City's low sun and its halo): full
   // colour and no fog, as if at infinity. From 2.5 to 3.5, a far backdrop
   // (the Ski Slope's mountains): lit like the rest, no distance fog, but
