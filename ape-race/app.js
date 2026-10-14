@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=fpcjlpfpmmcd";
-import { makeRenderer } from "./gl.js?v=fpcjlpfpmmcd";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=opikmhddnmch";
+import { makeRenderer } from "./gl.js?v=opikmhddnmch";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -336,6 +336,12 @@ function drawMinimap(m) {
   ctx.beginPath();
   for (let i = 0; i < m.line.length; i += m.stride) ctx.lineTo(m.line[i], m.line[i + 1]);
   ctx.stroke();
+  // a fork's other branch (the Ski Slope)
+  m.branches.forEach((b) => {
+    ctx.beginPath();
+    for (let i = 0; i < b.length; i += m.stride) ctx.lineTo(b[i], b[i + 1]);
+    ctx.stroke();
+  });
   ctx.fillStyle = m.finish_colour;
   ctx.beginPath();
   ctx.arc(m.finish[0], m.finish[1], m.dot, 0, m.circle);
@@ -504,7 +510,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=fpcjlpfpmmcd");
+    if (!online) online = await import("./online.js?v=opikmhddnmch");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -543,6 +549,7 @@ function handle(view) {
   }
   if (view.remote_moved !== undefined) document.body.dataset.remoteMoved = String(view.remote_moved);
   document.body.dataset.screen = view.screen;
+  el("version").textContent = view.version;
   // where the menus sit beside the previewed ape: the core decides (T47)
   document.body.dataset.dock = view.dock;
   document.body.style.setProperty("--dock-w", view.dock_w);
@@ -555,10 +562,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=fpcjlpfpmmcd" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=opikmhddnmch" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=fpcjlpfpmmcd").then((r) => r.text()),
+      fetch(f + "?v=opikmhddnmch").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);

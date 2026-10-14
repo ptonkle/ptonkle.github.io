@@ -46,6 +46,16 @@ void main() {
     outColor = vec4(vColor.rgb * a, 0.0);
     return;
   }
+  // the sky's dome (a glow of 3.5 or more, the Ski Slope's noon): the fog
+  // colour at the horizon deepening to the sky's colour times the shape's
+  // own overhead, unlit and unfogged, so the sky is paler low down
+  if (vColor.a > 3.5) {
+    float up = clamp(normalize(vWorld - uEye).y, 0.0, 1.0);
+    vec3 dome = mix(uFog, uSky * vColor.rgb, sqrt(clamp(up / 0.6, 0.0, 1.0)));
+    if (uMute > 0.0) dome = mix(dome, vec3(dot(dome, vec3(0.3, 0.59, 0.11))), uMute * 0.45);
+    outColor = vec4(dome, 1.0);
+    return;
+  }
   // smooth light, so each flat facet of a faceted shape takes its own shade;
   // the wrapped term keeps facets turned from the sun apart from each other
   float ndl = dot(n, uLightDir);
@@ -56,9 +66,14 @@ void main() {
   vec3 base = vColor.rgb;
   vec3 lit = base * (ambient * 0.66 + uLight * (diffuse * 0.48 + wrapped * 0.2));
   // a glow over 1 is the sky's (the City's low sun and its halo): full
-  // colour and no fog, as if at infinity
+  // colour and no fog, as if at infinity. From 2.5 to 3.5, a far backdrop
+  // (the Ski Slope's mountains): lit like the rest, no distance fog, but
+  // hazed toward the fog colour by the part over 2.5
   float sky = step(1.5, vColor.a);
-  lit = mix(lit, base * 1.08 + vec3(0.04), min(vColor.a, 1.0));
+  float far = step(2.5, vColor.a);
+  float haze = far * (vColor.a - 2.5);
+  lit = mix(lit, base * 1.08 + vec3(0.04), min(vColor.a, 1.0) * (1.0 - far));
+  lit = mix(lit, uFog, haze);
   if (uMute > 0.0 && uScenery < 2.5) {
     float grey = dot(lit, vec3(0.3, 0.59, 0.11));
     float amount = uScenery > 0.5 ? 0.82 : 0.45;
