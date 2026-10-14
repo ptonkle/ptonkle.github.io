@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=bcemnehcmahj";
-import { makeRenderer } from "./gl.js?v=bcemnehcmahj";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=cncmgljlkmia";
+import { makeRenderer } from "./gl.js?v=cncmgljlkmia";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -169,7 +169,7 @@ function tiles(item) {
     b.setAttribute("role", "radio");
     b.setAttribute("aria-checked", o.chosen ? "true" : "false");
     const img = make("img");
-    img.src = o.picture + "?v=bcemnehcmahj";
+    img.src = o.picture + "?v=cncmgljlkmia";
     img.alt = "";
     img.draggable = false;
     b.append(img, make("span", "tile-name", o.text));
@@ -553,7 +553,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=bcemnehcmahj");
+    if (!online) online = await import("./online.js?v=cncmgljlkmia");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -607,10 +607,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=bcemnehcmahj" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=cncmgljlkmia" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=bcemnehcmahj").then((r) => r.text()),
+      fetch(f + "?v=cncmgljlkmia").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);

@@ -39,6 +39,19 @@ void main() {
   // fading with the fog; one side only, so it adds once. A strength over 1
   // adds evenly (the part over 1): the sun's sheen on the water.
   if (uScenery > 3.5) {
+    // an aura round an ape (a negative strength, TRIAGE T59): the far side
+    // of a shell round it only, so the ape in front hides its middle and
+    // the glow shows round the ape's outline, fading out to the shell's
+    if (vColor.a < 0.0) {
+      if (gl_FrontFacing) discard;
+      float rim = abs(dot(n, normalize(uEye - vWorld)));
+      float glow = -vColor.a * rim * rim * (1.0 - f);
+      // part laid over what is behind, part added: its hue holds over a
+      // green jungle or a white slope (a red only added on green reads
+      // orange), and it still glows
+      outColor = vec4(vColor.rgb * glow, glow * 0.7);
+      return;
+    }
     if (!gl_FrontFacing && vColor.a <= 1.0) discard;
     float facing = abs(dot(n, normalize(uEye - vWorld)));
     float a = vColor.a > 1.0 ? vColor.a - 1.0 : vColor.a * facing * facing;
