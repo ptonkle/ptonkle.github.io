@@ -135,6 +135,7 @@
   "online.ms": "ms",
   "online.ai_count": "AI Apes",
   "online.wait_rematch": "Waiting for the host",
+  "online.settings_changed": "The host changed the settings since you readied",
   "lobby.start": "Start",
   "lobby.ready": "Ready Up",
   "lobby.leave": "Leave",
