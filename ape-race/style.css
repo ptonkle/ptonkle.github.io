@@ -125,7 +125,8 @@ body[data-screen="lineup"] .menus { display: none; }
 }
 
 .panel.menu { display: flex; flex-direction: column; gap: 0.6rem; min-width: 16rem; }
-.panel.overlay { min-width: 22rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.panel.overlay,
+.panel.results { min-width: 22rem; display: flex; flex-direction: column; gap: 0.6rem; }
 
 .button {
   font: inherit;
@@ -445,6 +446,9 @@ body[data-screen="race"] .menus:has(.panel.replay) {
 /* ---- spectating after the finish (TRIAGE T34) and the followed racer
    in a replay (T24) ---- */
 
+/* the full results sit at the side too, with no dimming, so the finishers'
+   dance shows (TRIAGE T53) */
+body[data-screen="race"] .menus:has(.panel.results),
 body[data-screen="race"] .menus:has(.panel.spectate) {
   background: none;
   justify-content: flex-end;
