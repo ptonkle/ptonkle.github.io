@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=opikmhddnmch";
-import { makeRenderer } from "./gl.js?v=opikmhddnmch";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=oinchhhlhieb";
+import { makeRenderer } from "./gl.js?v=oinchhhlhieb";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -25,11 +25,14 @@ function readStore(key) {
   }
 }
 
+// Whether the text was stored. A failed write leaves what was there before.
 function writeStore(key, text) {
   try {
     localStorage.setItem(key, text);
+    return true;
   } catch (e) {
-    // Storage can be blocked; settings then last for this visit only.
+    // Storage can be blocked or full; settings then last for this visit only.
+    return false;
   }
 }
 
@@ -145,6 +148,45 @@ function select(item) {
   return wrap;
 }
 
+// A grid of picture cards, one per choice (TRIAGE T54: the maps). The core
+// gives each card's id, picture, name and whether it is the chosen one; a
+// read-only grid (a joiner's lobby) shows the pick and presses nothing.
+// The arrow keys move between cards; Enter or Space presses one.
+function tiles(item) {
+  const wrap = make("div", "tiles-field");
+  wrap.append(make("span", "tiles-label", item.label));
+  const grid = make("div", item.read_only ? "tiles read-only" : "tiles");
+  grid.id = item.id;
+  grid.dataset.value = item.value;
+  grid.setAttribute("role", "radiogroup");
+  grid.setAttribute("aria-label", item.label);
+  item.options.forEach((o) => {
+    const b = make("button", o.chosen ? "tile chosen" : "tile");
+    b.type = "button";
+    b.id = o.id;
+    b.dataset.value = o.value;
+    b.disabled = item.read_only === true;
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", o.chosen ? "true" : "false");
+    const img = make("img");
+    img.src = o.picture + "?v=oinchhhlhieb";
+    img.alt = "";
+    img.draggable = false;
+    b.append(img, make("span", "tile-name", o.text));
+    b.addEventListener("click", () => send(item.id, o.value));
+    b.addEventListener("keydown", (e) => {
+      const to = { ArrowRight: b.nextElementSibling, ArrowDown: b.nextElementSibling, ArrowLeft: b.previousElementSibling, ArrowUp: b.previousElementSibling }[e.key];
+      if (to) {
+        e.preventDefault();
+        to.focus();
+      }
+    });
+    grid.append(b);
+  });
+  wrap.append(grid);
+  return wrap;
+}
+
 function slider(item) {
   const wrap = make("div", "field slider");
   const label = make("label", "", item.label);
@@ -216,7 +258,7 @@ function cells(item) {
   return table;
 }
 
-const builders = { button, picker, stats, select, slider, toggle, checks, list, table: cells, field, copy };
+const builders = { button, picker, stats, select, tiles, slider, toggle, checks, list, table: cells, field, copy };
 
 function drawMenus() {
   const text = JSON.stringify(ui.panels || []);
@@ -242,7 +284,8 @@ function drawMenus() {
     box.append(panel);
   });
   const again = focused && el(focused);
-  if (again && again.tagName !== "BUTTON") {
+  // a map card keeps the focus too, so the arrow keys go on from it
+  if (again && (again.tagName !== "BUTTON" || again.classList.contains("tile"))) {
     again.focus();
     if (caret !== null && caret !== undefined && again.setSelectionRange) again.setSelectionRange(caret, caret);
   }
@@ -510,7 +553,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=opikmhddnmch");
+    if (!online) online = await import("./online.js?v=oinchhhlhieb");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -540,7 +583,9 @@ function handle(view) {
     return;
   }
   if (view.save) writeStore(SAVE_KEY, view.save);
-  if (view.save_replays) writeStore(REPLAYS_KEY, view.save_replays);
+  // Storage full: the core asks again with fewer recent replays, never
+  // fewer bests (TRIAGE T55).
+  if (view.save_replays && !writeStore(REPLAYS_KEY, view.save_replays)) game.replays_not_saved();
   if (view.sounds) view.sounds.forEach(play);
   // Messages first: a Leave goes out before the transport closes.
   if (view.net_requests) {
@@ -562,10 +607,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=opikmhddnmch" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=oinchhhlhieb" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=opikmhddnmch").then((r) => r.text()),
+      fetch(f + "?v=oinchhhlhieb").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);

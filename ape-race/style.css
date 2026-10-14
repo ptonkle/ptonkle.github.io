@@ -489,3 +489,30 @@ body:has(#replay-bar:not([hidden])) .hint { bottom: auto; top: 5.5rem; }
   user-select: none;
   z-index: 50;
 }
+/* The map grid (TRIAGE T54): a card per map, its picture and name; the
+   chosen one ringed in banana yellow. Three to a row in a docked panel;
+   more maps add rows. A joiner's grid is read-only: the others fade. */
+.tiles-field { margin: 0.3rem 0 0.7rem; }
+.tiles-label { color: var(--muted); }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.35rem; }
+.tile {
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 2px solid var(--panel-line);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 0.08s, border-color 0.12s;
+}
+.tile img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; background: rgba(0, 0, 0, 0.25); }
+.tile-name { padding: 0.2rem 0.3rem 0.25rem; font-size: 0.9rem; font-weight: 700; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--muted); }
+.tile:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.tile.chosen { border-color: var(--banana); box-shadow: 0 0 0 2px var(--banana), 0 4px 12px rgba(0, 0, 0, 0.35); }
+.tile.chosen .tile-name { background: var(--banana); color: var(--accent-ink); }
+.tiles.read-only .tile { cursor: default; }
+.tiles.read-only .tile:not(.chosen) { opacity: 0.4; filter: grayscale(0.6); }

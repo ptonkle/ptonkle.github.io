@@ -178,6 +178,8 @@
   "replays.heading": "Replays",
   "replays.best": "★ Best",
   "replays.none": "No replays yet: finish a race or a Time Trial.",
+  "replays.older_layout": "older layout",
+  "replays.older_version": "older version",
   "map.jungle": "Jungle",
   "map.city": "City",
   "map.ski": "Ski Slope",

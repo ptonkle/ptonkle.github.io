@@ -159,6 +159,9 @@ export class Game {
     pointer_lock(locked) {
         wasm.game_pointer_lock(this.__wbg_ptr, locked);
     }
+    replays_not_saved() {
+        wasm.game_replays_not_saved(this.__wbg_ptr);
+    }
     /**
      * CSS size and device pixel ratio in; drawing-buffer size out.
      * @param {number} css_w
