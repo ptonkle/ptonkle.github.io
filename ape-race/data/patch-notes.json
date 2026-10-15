@@ -1,5 +1,14 @@
 [
   {
+    "version": "1.11.3",
+    "date": "2026-10-15",
+    "notes": [
+      "Sunset Ruins: flying into the temple, the camera no longer ends up on top of the mouth's stone roof; it stays inside with you.",
+      "Sunset Ruins: no more rock poking up through the floor just inside the mouth.",
+      "Sunset Ruins: computer players climb back out of the river by its low vines instead of getting stuck on a bank, and the four levels are spread apart again."
+    ]
+  },
+  {
     "version": "1.11.2",
     "date": "2026-10-15",
     "notes": [
