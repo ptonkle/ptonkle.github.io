@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=dialmejpgpmo";
-import { makeRenderer } from "./gl.js?v=dialmejpgpmo";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=cdhbknjgjcob";
+import { makeRenderer } from "./gl.js?v=cdhbknjgjcob";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -65,6 +65,28 @@ const canvas = el("view");
 
 // ---- menus, from the core's panels ----
 
+// What each menu element does, by its id: { click, change, input, keydown }
+// handlers, made afresh with each build. The menus listen once, on their
+// box, and look the target up here, so an element kept across a rebuild
+// (drawMenus patches the old tree to match the new one) does the latest
+// thing (TRIAGE T65).
+let handlers = {};
+
+function on(id, type, fn) {
+  if (!handlers[id]) handlers[id] = {};
+  handlers[id][type] = fn;
+}
+
+function dispatch(e) {
+  for (let t = e.target; t && t.id !== "menus"; t = t.parentElement) {
+    const h = t.id && handlers[t.id] && handlers[t.id][e.type];
+    if (h) {
+      h(t, e);
+      return;
+    }
+  }
+}
+
 function send(id, value) {
   game.act(id, value);
   afterAct();
@@ -85,7 +107,7 @@ function button(item) {
   b.type = "button";
   b.id = item.id;
   b.disabled = item.disabled === true;
-  b.addEventListener("click", () => send(item.id, ""));
+  on(item.id, "click", () => send(item.id, ""));
   return b;
 }
 
@@ -100,7 +122,7 @@ function field(item) {
   if (item.placeholder) input.placeholder = item.placeholder;
   input.spellcheck = false;
   label.htmlFor = item.id;
-  input.addEventListener("input", () => send(item.id, input.value));
+  on(item.id, "input", (t) => send(item.id, t.value));
   wrap.append(label, input);
   return wrap;
 }
@@ -115,7 +137,7 @@ function copy(item) {
   b.type = "button";
   b.id = item.id;
   b.disabled = item.disabled === true;
-  b.addEventListener("click", () => {
+  on(item.id, "click", () => {
     if (navigator.clipboard) navigator.clipboard.writeText(item.copy).catch(() => {});
     send(item.id, "");
   });
@@ -130,11 +152,11 @@ function picker(item) {
   const prev = make("button", "", "‹");
   prev.type = "button";
   prev.id = item.id + ".prev";
-  prev.addEventListener("click", () => send(item.id + ".prev", ""));
+  on(prev.id, "click", () => send(prev.id, ""));
   const next = make("button", "", "›");
   next.type = "button";
   next.id = item.id + ".next";
-  next.addEventListener("click", () => send(item.id + ".next", ""));
+  on(next.id, "click", () => send(next.id, ""));
   const name = make("div", "name", item.text);
   name.id = item.id;
   box.append(prev, name, next);
@@ -165,7 +187,7 @@ function select(item) {
   input.value = item.value;
   input.id = item.id;
   label.htmlFor = item.id;
-  input.addEventListener("change", () => send(item.id, input.value));
+  on(item.id, "change", (t) => send(item.id, t.value));
   wrap.append(label, input);
   return wrap;
 }
@@ -185,7 +207,7 @@ function tiles(item) {
   const chosen = item.options.find((o) => o.chosen) || item.options[0];
   const hero = make("figure", "tile-hero");
   const img = make("img");
-  img.src = chosen.picture + "?v=dialmejpgpmo";
+  img.src = chosen.picture + "?v=cdhbknjgjcob";
   img.alt = chosen.text;
   img.draggable = false;
   hero.append(img, make("figcaption", "tile-hero-name", chosen.text));
@@ -201,9 +223,9 @@ function tiles(item) {
     b.disabled = item.read_only === true;
     b.setAttribute("role", "radio");
     b.setAttribute("aria-checked", o.chosen ? "true" : "false");
-    b.addEventListener("click", () => send(item.id, o.value));
-    b.addEventListener("keydown", (e) => {
-      const to = { ArrowRight: b.nextElementSibling, ArrowDown: b.nextElementSibling, ArrowLeft: b.previousElementSibling, ArrowUp: b.previousElementSibling }[e.key];
+    on(o.id, "click", () => send(item.id, o.value));
+    on(o.id, "keydown", (t, e) => {
+      const to = { ArrowRight: t.nextElementSibling, ArrowDown: t.nextElementSibling, ArrowLeft: t.previousElementSibling, ArrowUp: t.previousElementSibling }[e.key];
       if (to) {
         e.preventDefault();
         to.focus();
@@ -227,7 +249,7 @@ function slider(item) {
   input.setAttribute("step", item.step);
   input.value = item.value;
   label.htmlFor = item.id;
-  input.addEventListener("change", () => send(item.id, input.value));
+  on(item.id, "change", (t) => send(item.id, t.value));
   wrap.append(label, input, make("span", "slider-value", item.text));
   return wrap;
 }
@@ -238,7 +260,7 @@ function toggle(item) {
   input.type = "checkbox";
   input.id = item.id;
   input.checked = item.value;
-  input.addEventListener("change", () => send(item.id, input.checked ? "on" : "off"));
+  on(item.id, "change", (t) => send(item.id, t.checked ? "on" : "off"));
   wrap.append(make("span", "", item.label), input);
   return wrap;
 }
@@ -254,7 +276,7 @@ function checks(item) {
     input.type = "checkbox";
     input.id = o.id;
     input.checked = o.value;
-    input.addEventListener("change", () => send(o.id, input.checked ? "on" : "off"));
+    on(o.id, "change", (t) => send(o.id, t.checked ? "on" : "off"));
     box.append(input, make("span", "", o.text));
     row.append(box);
   });
@@ -289,14 +311,10 @@ function cells(item) {
 
 const builders = { button, picker, stats, select, tiles, slider, toggle, checks, list, table: cells, field, copy };
 
-function drawMenus() {
-  const text = JSON.stringify(ui.panels || []);
-  if (text === panelsText) return;
-  panelsText = text;
-  const focused = document.activeElement && document.activeElement.id;
-  const caret = focused ? document.activeElement.selectionStart : null;
-  const box = el("menus");
-  box.replaceChildren();
+// The menus as the core gives them, built as a fresh tree off the page.
+function buildMenus() {
+  handlers = {};
+  const box = make("main");
   (ui.panels || []).forEach((p) => {
     const panel = make("div", "panel " + p.kind);
     if (p.heading) {
@@ -304,17 +322,77 @@ function drawMenus() {
       // a heading the core makes clickable (the title's secret)
       if (p.click) {
         h.id = p.click;
-        h.addEventListener("click", () => send(p.click, ""));
+        on(p.click, "click", () => send(p.click, ""));
       }
       panel.append(h);
     }
     if (p.sub) panel.append(make("div", "sub", p.sub));
-    p.items.forEach((item) => panel.append(builders[item.type](item)));
+    // a setup panel's closing buttons (Start, Ready, Back, Leave) sit
+    // together at its foot, which stays in view (TRIAGE T70)
+    let foot = p.items.length;
+    if (p.kind === "setup") while (foot > 0 && p.items[foot - 1].type === "button") foot -= 1;
+    p.items.slice(0, foot).forEach((item) => panel.append(builders[item.type](item)));
+    if (foot < p.items.length) {
+      const actions = make("div", "actions");
+      p.items.slice(foot).forEach((item) => actions.append(builders[item.type](item)));
+      panel.append(actions);
+    }
     box.append(panel);
   });
+  return box;
+}
+
+// Two nodes are the same element if they have the same tag and id.
+function same(a, b) {
+  return a.nodeType === b.nodeType && a.nodeName === b.nodeName && (a.nodeType !== Node.ELEMENT_NODE || a.id === b.id);
+}
+
+// Makes `old` (on the page) match `fresh` (just built), keeping every
+// element that is still there: a rebuilt element under the mouse between
+// press and release loses the click, and a rebuilt select closes while
+// open (TRIAGE T65: the lobby's pings change the menus twice a second).
+function patch(old, fresh) {
+  if (old.nodeType !== Node.ELEMENT_NODE) {
+    if (old.nodeValue !== fresh.nodeValue) old.nodeValue = fresh.nodeValue;
+    return;
+  }
+  [...old.attributes].forEach((a) => {
+    if (!fresh.hasAttribute(a.name)) old.removeAttribute(a.name);
+  });
+  [...fresh.attributes].forEach((a) => {
+    if (old.getAttribute(a.name) !== a.value) old.setAttribute(a.name, a.value);
+  });
+  patchChildren(old, fresh);
+  // the live state, after the children (a select's value needs its options)
+  if (old.tagName === "INPUT" || old.tagName === "SELECT" || old.tagName === "TEXTAREA") {
+    if (old.value !== fresh.value) old.value = fresh.value;
+    if (old.checked !== fresh.checked) old.checked = fresh.checked;
+  }
+}
+
+function patchChildren(old, fresh) {
+  const want = [...fresh.childNodes];
+  want.forEach((f, i) => {
+    const o = old.childNodes[i];
+    if (!o) old.append(f);
+    else if (same(o, f)) patch(o, f);
+    else old.replaceChild(f, o);
+  });
+  while (old.childNodes.length > want.length) old.lastChild.remove();
+}
+
+function drawMenus() {
+  const text = JSON.stringify(ui.panels || []);
+  if (text === panelsText) return;
+  panelsText = text;
+  const kept = document.activeElement;
+  const focused = kept && kept.id;
+  const caret = focused ? kept.selectionStart : null;
+  patchChildren(el("menus"), buildMenus());
+  // an element that had to be replaced gets the focus back (and a text
+  // field its caret); a map card too, so the arrow keys go on from it
   const again = focused && el(focused);
-  // a map card keeps the focus too, so the arrow keys go on from it
-  if (again && (again.tagName !== "BUTTON" || again.classList.contains("tile"))) {
+  if (again && again !== kept && (again.tagName !== "BUTTON" || again.classList.contains("tile"))) {
     again.focus();
     if (caret !== null && caret !== undefined && again.setSelectionRange) again.setSelectionRange(caret, caret);
   }
@@ -452,6 +530,7 @@ function typing(e) {
 }
 
 function bindInput() {
+  ["click", "change", "input", "keydown"].forEach((type) => el("menus").addEventListener(type, dispatch));
   ["keydown", "keyup"].forEach((type) => {
     window.addEventListener(type, (e) => {
       if (typing(e)) return;
@@ -582,7 +661,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=dialmejpgpmo");
+    if (!online) online = await import("./online.js?v=cdhbknjgjcob");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -637,10 +716,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=dialmejpgpmo" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=cdhbknjgjcob" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=dialmejpgpmo").then((r) => r.text()),
+      fetch(f + "?v=cdhbknjgjcob").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);
