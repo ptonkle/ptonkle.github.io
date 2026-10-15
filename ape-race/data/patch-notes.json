@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.11.4",
+    "date": "2026-10-15",
+    "notes": [
+      "Sunset Ruins: in the online lobby the temple's mouth shows between the menus and your ape, instead of hiding behind a panel."
+    ]
+  },
+  {
     "version": "1.11.3",
     "date": "2026-10-15",
     "notes": [
