@@ -44,7 +44,7 @@
 //
 // Every frame on a channel starts with one character saying what it is.
 
-import { ONLINE, iceServers } from "./online-config.js?v=jbgknjkbfoog";
+import { ONLINE, iceServers } from "./online-config.js?v=libmnmdipgbd";
 
 const HELLO = "h";
 const ACK = "k";
@@ -174,20 +174,26 @@ function greet(s, link, hello) {
     emit(s, { kind: "connected", peer: id, host: peer.host });
     if (s.mode === "code" && s.isHost) introduce(s, peer);
   }
-  flush(peer);
+  flush(s, peer);
   for (const text of link.early.splice(0)) frame(s, link, text);
 }
 
-function flush(peer) {
+function flush(s, peer) {
   while (peer.queue.length && peer.link && peer.link.ready && !peer.link.gone) {
-    if (!trySend(peer.link.ch, peer.queue[0])) return;
+    if (!trySend(peer.link.ch, peer.queue[0])) {
+      // A channel can close without a close event (its connection closed
+      // under it): let it go like any lost link, so the text waits for the
+      // next one instead of queueing behind a dead one for ever (TRIAGE T71).
+      if (peer.link.ch.readyState === "closed") lost(s, peer.link);
+      return;
+    }
     peer.queue.shift();
   }
 }
 
 function sendFrame(s, peer, text) {
   peer.queue.push(text);
-  flush(peer);
+  flush(s, peer);
 }
 
 function lost(s, link) {
