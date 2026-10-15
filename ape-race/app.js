@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=cdhbknjgjcob";
-import { makeRenderer } from "./gl.js?v=cdhbknjgjcob";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=phbacighhpgb";
+import { makeRenderer } from "./gl.js?v=phbacighhpgb";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -207,7 +207,7 @@ function tiles(item) {
   const chosen = item.options.find((o) => o.chosen) || item.options[0];
   const hero = make("figure", "tile-hero");
   const img = make("img");
-  img.src = chosen.picture + "?v=cdhbknjgjcob";
+  img.src = chosen.picture + "?v=phbacighhpgb";
   img.alt = chosen.text;
   img.draggable = false;
   hero.append(img, make("figcaption", "tile-hero-name", chosen.text));
@@ -381,7 +381,44 @@ function patchChildren(old, fresh) {
   while (old.childNodes.length > want.length) old.lastChild.remove();
 }
 
+// An open dropdown (TRIAGE T65, the person: it still closed whenever a
+// lobby ping or a player's ape changed): the browser closes a select's
+// list when the page around it changes, so the menus wait while one is
+// open, and catch up when it closes (a choice, Escape, Enter or Tab, a
+// click anywhere, or the focus leaving it).
+let openSelect = null;
+
+function selectOpened(s) {
+  openSelect = s;
+}
+
+function selectClosed() {
+  if (!openSelect) return;
+  openSelect = null;
+  drawMenus();
+}
+
+document.addEventListener("pointerdown", (e) => {
+  const s = e.target.closest && e.target.closest("#menus select");
+  if (s && s !== openSelect) selectOpened(s);
+  else selectClosed();
+}, true);
+// after the change is sent (a redraw first would put back the old value)
+document.addEventListener("change", () => setTimeout(selectClosed, 0), true);
+document.addEventListener("focusout", (e) => { if (e.target === openSelect) selectClosed(); }, true);
+document.addEventListener("keydown", (e) => {
+  if (!openSelect) {
+    if (e.target.matches && e.target.matches("#menus select") && (e.key === " " || e.key === "ArrowDown" && e.altKey)) selectOpened(e.target);
+  } else if (e.key === "Escape" || e.key === "Enter" || e.key === "Tab") {
+    setTimeout(selectClosed, 0);
+  }
+}, true);
+
 function drawMenus() {
+  if (openSelect) {
+    if (openSelect.isConnected) return;
+    openSelect = null;
+  }
   const text = JSON.stringify(ui.panels || []);
   if (text === panelsText) return;
   panelsText = text;
@@ -661,7 +698,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=cdhbknjgjcob");
+    if (!online) online = await import("./online.js?v=phbacighhpgb");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -716,10 +753,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=cdhbknjgjcob" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=phbacighhpgb" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=cdhbknjgjcob").then((r) => r.text()),
+      fetch(f + "?v=phbacighhpgb").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);
