@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.11.2",
+    "date": "2026-10-15",
+    "notes": [
+      "Sunset Ruins: a new lobby spot: your ape stands on a ruin in the river with the temple's mouth and the sunset behind it, instead of looking at the ground.",
+      "Sunset Ruins: the carved wall panels sit flat on every wall, and their banana glyphs glow where you can see them."
+    ]
+  },
+  {
     "version": "1.11.1",
     "date": "2026-10-15",
     "notes": [
