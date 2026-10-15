@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.11.1",
+    "date": "2026-10-15",
+    "notes": [
+      "Sunset Ruins: the temple's stone face is solid now; only its open mouth lets you in. Hit the face and you drop into the ravine.",
+      "Sunset Ruins: the bridge's boost vines aim a little further into the mouth."
+    ]
+  },
+  {
     "version": "1.11.0",
     "date": "2026-10-15",
     "notes": [
