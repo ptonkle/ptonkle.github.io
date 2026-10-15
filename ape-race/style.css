@@ -605,3 +605,33 @@ body[data-dock="side"] .menus .panel.setup,
 body[data-dock="below"] .menus .panel.setup { column-gap: 0.75rem; }
 body[data-dock] .panel.setup .field label,
 body[data-dock] .panel.setup .toggle span { font-size: 0.92rem; }
+
+/* What's New: the patch notes the core lists. The list scrolls; the
+   minor-patches tick and Back stay in view. A minor version is smaller. */
+.panel.notes { display: flex; flex-direction: column; width: 34rem; max-width: 100%; max-height: 82vh; }
+.panel.notes .notes { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 0.2rem 0 0.8rem; padding-right: 0.5rem; user-select: text; }
+.note { padding: 0.55rem 0 0.6rem; border-top: 1px solid var(--panel-line); }
+.note:first-child { border-top: none; }
+.note-head { display: flex; align-items: baseline; gap: 0.6rem; }
+.note-version { font-weight: 800; font-size: 1.15rem; color: var(--banana); }
+.note-date { color: var(--muted); font-size: 0.85rem; }
+.note ul { margin: 0.3rem 0 0; padding-left: 1.2rem; }
+.note li { margin: 0.15rem 0; }
+.note.minor .note-version { font-size: 0.95rem; }
+.note.minor ul { font-size: 0.88rem; color: var(--muted); }
+/* "New" on the menu's What's New */
+.button .badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: #e8443a;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  vertical-align: middle;
+  letter-spacing: 0.04em;
+}
+/* the version in the corner opens the notes on the menus */
+.version.opens { pointer-events: auto; cursor: pointer; }
+.version.opens:hover { color: var(--banana); text-decoration: underline; }

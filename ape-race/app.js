@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=joohonlhieol";
-import { makeRenderer } from "./gl.js?v=joohonlhieol";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=odmliepgkfka";
+import { makeRenderer } from "./gl.js?v=odmliepgkfka";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -107,6 +107,8 @@ function button(item) {
   b.type = "button";
   b.id = item.id;
   b.disabled = item.disabled === true;
+  // a small marker the core adds ("New" on What's New)
+  if (item.badge) b.append(make("span", "badge", item.badge));
   on(item.id, "click", () => send(item.id, ""));
   return b;
 }
@@ -207,7 +209,7 @@ function tiles(item) {
   const chosen = item.options.find((o) => o.chosen) || item.options[0];
   const hero = make("figure", "tile-hero");
   const img = make("img");
-  img.src = chosen.picture + "?v=joohonlhieol";
+  img.src = chosen.picture + "?v=odmliepgkfka";
   img.alt = chosen.text;
   img.draggable = false;
   hero.append(img, make("figcaption", "tile-hero-name", chosen.text));
@@ -309,7 +311,24 @@ function cells(item) {
   return table;
 }
 
-const builders = { button, picker, stats, select, tiles, slider, toggle, checks, list, table: cells, field, copy };
+// The patch notes, as the core lists them: each version, its date and its
+// lines (a minor version drawn smaller).
+function notes(item) {
+  const box = make("div", "notes");
+  box.id = item.id;
+  item.entries.forEach((e) => {
+    const sec = make("section", e.minor ? "note minor" : "note");
+    const head = make("div", "note-head");
+    head.append(make("span", "note-version", e.version), make("span", "note-date", e.date));
+    const ul = make("ul");
+    e.lines.forEach((l) => ul.append(make("li", "", l)));
+    sec.append(head, ul);
+    box.append(sec);
+  });
+  return box;
+}
+
+const builders = { button, picker, stats, select, tiles, slider, toggle, checks, list, table: cells, field, copy, notes };
 
 // The menus as the core gives them, built as a fresh tree off the page.
 function buildMenus() {
@@ -568,6 +587,8 @@ function typing(e) {
 
 function bindInput() {
   ["click", "change", "input", "keydown"].forEach((type) => el("menus").addEventListener(type, dispatch));
+  // the version in the corner opens the patch notes (the core says where)
+  el("version").addEventListener("click", () => send("version", ""));
   ["keydown", "keyup"].forEach((type) => {
     window.addEventListener(type, (e) => {
       if (typing(e)) return;
@@ -698,7 +719,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=joohonlhieol");
+    if (!online) online = await import("./online.js?v=odmliepgkfka");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -741,6 +762,8 @@ function handle(view) {
   if (view.remote_moved !== undefined) document.body.dataset.remoteMoved = String(view.remote_moved);
   document.body.dataset.screen = view.screen;
   el("version").textContent = view.version;
+  // the version opens the patch notes where the core allows it
+  el("version").classList.toggle("opens", view.version_opens === true);
   // where the menus sit beside the previewed ape: the core decides (T47)
   document.body.dataset.dock = view.dock;
   document.body.style.setProperty("--dock-w", view.dock_w);
@@ -753,10 +776,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=joohonlhieol" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=odmliepgkfka" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=joohonlhieol").then((r) => r.text()),
+      fetch(f + "?v=odmliepgkfka").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);
