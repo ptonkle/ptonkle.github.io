@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=imbjkbhepabo";
-import { makeRenderer } from "./gl.js?v=imbjkbhepabo";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=fdpgcapngakd";
+import { makeRenderer } from "./gl.js?v=fdpgcapngakd";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -207,7 +207,7 @@ function tiles(item) {
   const chosen = item.options.find((o) => o.chosen) || item.options[0];
   const hero = make("figure", "tile-hero");
   const img = make("img");
-  img.src = chosen.picture + "?v=imbjkbhepabo";
+  img.src = chosen.picture + "?v=fdpgcapngakd";
   img.alt = chosen.text;
   img.draggable = false;
   hero.append(img, make("figcaption", "tile-hero-name", chosen.text));
@@ -698,7 +698,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=imbjkbhepabo");
+    if (!online) online = await import("./online.js?v=fdpgcapngakd");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -753,10 +753,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=imbjkbhepabo" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=fdpgcapngakd" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=imbjkbhepabo").then((r) => r.text()),
+      fetch(f + "?v=fdpgcapngakd").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);
