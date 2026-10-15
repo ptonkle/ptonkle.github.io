@@ -44,9 +44,10 @@ void main() {
   // fading with the fog; one side only, so it adds once. A strength over 1
   // adds evenly (the part over 1): the sun's sheen on the water.
   if (uScenery > 3.5) {
-    // an aura round an ape (a negative strength, TRIAGE T59): the far side
-    // of a shell round it only, so the ape in front hides its middle and
-    // the glow shows round the ape's outline, fading out to the shell's
+    // a rim glow (a negative strength; made for T59's auras round the apes,
+    // now the black hole's photon ring): the far side
+    // of a shell round a solid shape only, so the shape hides its middle and
+    // the glow shows round its outline, fading out to the shell's
     if (vColor.a < 0.0) {
       if (gl_FrontFacing) discard;
       float rim = abs(dot(n, normalize(uEye - vWorld)));
