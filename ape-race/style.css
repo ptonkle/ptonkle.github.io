@@ -558,6 +558,9 @@ body[data-dock] .panel.setup .toggle { margin: 0.2rem 0; flex-wrap: wrap; row-ga
 body[data-dock] .panel.setup .field label { white-space: nowrap; }
 body[data-dock] .panel.setup .tiles-field { margin: 0.1rem 0 0.3rem; }
 body[data-dock] .panel.setup .tile-hero img { aspect-ratio: 3 / 1; }
+/* on a short screen the picture is flatter, so the Weather row (Yeti Peak,
+   the bay) fits beside Colours and Costume without a scrollbar */
+@media (max-height: 760px) { body[data-dock] .panel.setup .tile-hero img { aspect-ratio: 5 / 1; } }
 body[data-dock] .panel.setup .picker { margin: 0.2rem 0 0.3rem; }
 body[data-dock] .panel.setup .picker .name { font-size: 1.4rem; }
 body[data-dock] .panel.setup .picker button { width: 2.2rem; height: 2.2rem; font-size: 1.2rem; }
@@ -598,6 +601,10 @@ body[data-dock] .panel.setup > .actions .button:not(:first-child) { background: 
    Random, TRIAGE T64) share the row under the picture */
 body[data-dock] .panel.setup .field { gap: 0.15rem 0.5rem; }
 body[data-dock] .panel.setup .field select { font-size: 0.95rem; padding: 0.15rem 0.3rem; }
+/* the costume select (TRIAGE T89): its locked options carry their hint
+   ("Beat <map>'s Author time"), shown whole in the opened list; the closed
+   box stays short so it pairs with the colours on one row */
+body[data-dock] .panel.setup select[id$=".costume"] { max-width: 6.2rem; font-size: 0.8rem; }
 body[data-dock] .panel.setup .tile { flex: 1 1 auto; font-size: 0.76rem; padding: 0.25rem 0.3rem; }
 body[data-dock] .panel.setup .tile-row { flex-wrap: nowrap; gap: 0.25rem; }
 body[data-dock] .panel.setup .tiles { grid-template-columns: minmax(0, 1fr); }
