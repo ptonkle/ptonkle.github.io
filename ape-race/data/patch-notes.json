@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.12.8",
+    "date": "2026-10-15",
+    "notes": [
+      "The online lobby no longer scrolls sideways with a long name."
+    ]
+  },
+  {
     "version": "1.12.7",
     "date": "2026-10-15",
     "notes": [

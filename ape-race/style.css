@@ -579,12 +579,18 @@ body[data-dock] .panel.setup .copy-field { margin: 0.2rem 0; flex-wrap: nowrap; 
 body[data-dock] .panel.setup .copy-field .button { width: auto; margin-top: 0; flex: 0 0 auto; }
 body[data-dock] .panel.setup .copy-field .button,
 body[data-dock] .panel.setup > .button { font-size: 1rem; padding: 0.4rem 1rem; margin-top: 0.2rem; }
-body[data-dock] .panel.setup table.cells td { padding: 0.2rem 0.5rem; }
+body[data-dock] .panel.setup table.cells { font-size: 0.92rem; }
+body[data-dock] .panel.setup table.cells td,
+body[data-dock] .panel.setup table.cells th { padding: 0.2rem 0.35rem; }
 /* the lobby's seats keep to one line each; a long ape name with its
    colours and costume is cut short rather than wrapping */
 body[data-dock] .panel.setup table.cells { table-layout: auto; width: 100%; }
 body[data-dock] .panel.setup table.cells td { white-space: nowrap; }
-body[data-dock] .panel.setup table.cells td:nth-child(2) { max-width: 13.5rem; overflow: hidden; text-overflow: ellipsis; }
+/* the player's name takes what the panel has left and is cut short with
+   an ellipsis (max-width: 0 lets an auto table shrink it); the ape kind
+   always shows in full, so the panel never scrolls sideways */
+body[data-dock] .panel.setup table.cells td:nth-child(1) { max-width: 0; width: 100%; overflow: hidden; text-overflow: ellipsis; }
+body[data-dock] .panel.setup { overflow-x: hidden; }
 .actions { display: flex; flex-direction: column; }
 body[data-dock="side"] .panel.setup:has(> .actions),
 body[data-dock="below"] .panel.setup:has(> .actions) { padding-bottom: 0; }
