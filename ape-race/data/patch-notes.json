@@ -1,5 +1,14 @@
 [
   {
+    "version": "1.12.4",
+    "date": "2026-10-15",
+    "notes": [
+      "Banana Bay Battle: bigger ships in two battle lines, with more ropes to swing on.",
+      "Ropes are easier to see.",
+      "New medal times on Banana Bay Battle."
+    ]
+  },
+  {
     "version": "1.12.3",
     "date": "2026-10-15",
     "notes": [
