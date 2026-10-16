@@ -69,6 +69,9 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
   const uLight = uniform("uLight");
   const uGround = uniform("uGround");
   const uRim = uniform("uRim");
+  const uFocus = uniform("uFocus");
+  const uSee = uniform("uSee");
+  const uSeeKinds = uniform("uSeeKinds");
   const V = N.view;
 
   let at = 0;
@@ -134,6 +137,10 @@ export function makeRenderer(canvas, N, shaders, meshData, sceneUniforms, clearC
       gl.uniform3fv(uLight, view.subarray(...V.light));
       gl.uniform3fv(uGround, view.subarray(...V.ground));
       gl.uniform3fv(uRim, view.subarray(...V.rim));
+      // the see-through hole round the followed ape (the core says where)
+      gl.uniform4fv(uFocus, view.subarray(...V.see_focus));
+      gl.uniform4fv(uSee, view.subarray(...V.see));
+      gl.uniform3fv(uSeeKinds, view.subarray(...V.see_kinds));
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.uniformMatrix4fv(uVP, false, view.subarray(...V.matrix));
       gl.uniform3fv(uEye, view.subarray(...V.eye));

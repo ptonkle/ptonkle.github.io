@@ -32,8 +32,46 @@ uniform float uScenery;
 // vines and their flowers (uScenery 3) vivid, so they stand out by
 // brightness, not hue.
 uniform float uMute;
+// See-through (SECOND-ORDER BX2): the followed ape's middle (xyz) and the
+// floor under it (w); the hole's sizes (the eye's sphere, the cone's half
+// width at the eye and at the ape, how far before the ape it thins out);
+// the share of each width cut solid, and the draw kinds the cone and the
+// eye's sphere cut. The core sets them all (crates/core/src/see.rs); a
+// sphere of 0 cuts nothing.
+uniform vec4 uFocus;
+uniform vec4 uSee;
+uniform vec3 uSeeKinds;
 out vec4 outColor;
+// How much of this fragment is cut away (0 none, 1 all).
+float seeCut() {
+  bool cone = abs(uScenery - uSeeKinds.y) < 0.5;
+  if (!cone && abs(uScenery - uSeeKinds.z) >= 0.5) return 0.0;
+  if (uSee.x <= 0.0 || vWorld.y < uFocus.w) return 0.0;
+  vec3 rel = vWorld - uEye;
+  float cut = 1.0 - smoothstep(uSee.x * uSeeKinds.x, uSee.x, length(rel));
+  if (!cone) return cut;
+  vec3 axis = uFocus.xyz - uEye;
+  float len = length(axis);
+  if (len < 0.01) return cut;
+  vec3 dir = axis / len;
+  float t = dot(rel, dir);
+  if (t <= 0.0 || t >= len) return cut;
+  float wide = mix(uSee.y, uSee.z, t / len);
+  float off = length(rel - dir * t);
+  float across = 1.0 - smoothstep(wide * uSeeKinds.x, wide, off);
+  float along = 1.0 - smoothstep(len - uSee.w, len, t);
+  return max(cut, across * along);
+}
+// the 4x4 ordered dither's threshold at this pixel: a part-cut fragment
+// goes on that share of the pixels, which reads as glass
+float bayer() {
+  vec2 p = mod(floor(gl_FragCoord.xy), 4.0);
+  float b = mod(p.x + p.y * 2.0, 4.0) * 4.0 + mod(p.x * 2.0 + p.y, 4.0);
+  return (b + 0.5) / 16.0;
+}
 void main() {
+  float see = seeCut();
+  if (see > 0.0 && see > bayer()) discard;
   vec3 n = normalize(vNormal);
   if (!gl_FrontFacing) n = -n;
   float d = length(vWorld - uEye);

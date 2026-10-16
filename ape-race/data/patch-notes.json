@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.12.7",
+    "date": "2026-10-15",
+    "notes": [
+      "Scenery between the camera and your ape turns see-through.",
+      "Banana Bay Battle: the camera no longer jiggles past the masts."
+    ]
+  },
+  {
     "version": "1.12.6",
     "date": "2026-10-15",
     "notes": [
