@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.12.6",
+    "date": "2026-10-15",
+    "notes": [
+      "Banana Bay Battle: AI apes no longer spin on a rope.",
+      "New medal times on Banana Bay Battle."
+    ]
+  },
+  {
     "version": "1.12.5",
     "date": "2026-10-15",
     "notes": [
