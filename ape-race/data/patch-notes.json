@@ -1,21 +1,28 @@
 [
   {
+    "version": "1.12.2",
+    "date": "2026-10-15",
+    "notes": [
+      "The online lobby stacks its two menus when they fit.",
+      "Costumes: only the ones you've unlocked are listed.",
+      "Banana, Stick and Hook are off for now."
+    ]
+  },
+  {
     "version": "1.12.1",
     "date": "2026-10-15",
     "notes": [
-      "Race Setup and the lobby: every map's picture now shows in a row above your ape; click one to pick it."
+      "Map pictures now show in a row above your ape."
     ]
   },
   {
     "version": "1.12.0",
     "date": "2026-10-15",
     "notes": [
-      "New map: Banana Bay Battle. Swing through a pirate battle at 3 pm, from a tall pier to a treasure island, in pirate outfits (the Floor is Lava jaguar is a navy officer).",
-      "Fall in the sea and you're put back on the last ship you passed. Flagged barrels mark the edges, and bouncy barrels can save you. New weather there: Squall.",
-      "Unlockable costumes: beat a map's Author time and wear its costume on any ape, on any map (Costume, beside Colours).",
-      "Sector Ape: the shortcut through the wreck is bigger and fires you through it with a speed boost.",
-      "Yeti Peak: half as many low vines.",
-      "Settings shows the weather you actually chose. Online needs everyone on this version."
+      "New map: Banana Bay Battle.",
+      "Unlockable costumes: beat a map's Author time to wear its outfit on any map.",
+      "Sector Ape: the wreck shortcut now gives a speed boost.",
+      "Yeti Peak: fewer low vines."
     ]
   },
   {

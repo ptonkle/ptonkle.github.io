@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=nopeceoejoil";
-import { makeRenderer } from "./gl.js?v=nopeceoejoil";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=pnpneebgepdj";
+import { makeRenderer } from "./gl.js?v=pnpneebgepdj";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -211,7 +211,7 @@ function tiles(item) {
   const chosen = item.options.find((o) => o.chosen) || item.options[0];
   const hero = make("figure", "tile-hero");
   const img = make("img");
-  img.src = chosen.picture + "?v=nopeceoejoil";
+  img.src = chosen.picture + "?v=pnpneebgepdj";
   img.alt = chosen.text;
   img.draggable = false;
   hero.append(img, make("figcaption", "tile-hero-name", chosen.text));
@@ -341,7 +341,11 @@ function cells(item) {
   table.append(head);
   item.rows.forEach((r) => {
     const tr = make("tr", r[r.length - 1] === true ? "me" : "");
-    r.slice(0, -1).forEach((c) => tr.append(make("td", "", c)));
+    r.slice(0, -1).forEach((c) => {
+      const td = make("td", "", c);
+      td.title = c;
+      tr.append(td);
+    });
     table.append(tr);
   });
   return table;
@@ -469,6 +473,18 @@ document.addEventListener("keydown", (e) => {
   }
 }, true);
 
+// the docked panels' natural heights, for the core to choose between
+// stacking them and standing them side by side
+let menusH = "";
+function measureMenus() {
+  const panels = [...el("menus").querySelectorAll(":scope > .panel:not(.strip)")];
+  if (!panels[1]) return;
+  const h = panels.map((p) => p.scrollHeight).join(" ");
+  if (h === menusH) return;
+  menusH = h;
+  send("dock.menus_h", h);
+}
+
 function drawMenus() {
   if (openSelect) {
     if (openSelect.isConnected) return;
@@ -481,6 +497,7 @@ function drawMenus() {
   const focused = kept && kept.id;
   const caret = focused ? kept.selectionStart : null;
   patchChildren(el("menus"), buildMenus());
+  measureMenus();
   // an element that had to be replaced gets the focus back (and a text
   // field its caret); a map card too, so the arrow keys go on from it
   const again = focused && el(focused);
@@ -755,7 +772,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=nopeceoejoil");
+    if (!online) online = await import("./online.js?v=pnpneebgepdj");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -812,10 +829,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=nopeceoejoil" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=pnpneebgepdj" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=nopeceoejoil").then((r) => r.text()),
+      fetch(f + "?v=pnpneebgepdj").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);
