@@ -613,6 +613,49 @@ body[data-dock="below"] .menus .panel.setup { column-gap: 0.75rem; }
 body[data-dock] .panel.setup .field label,
 body[data-dock] .panel.setup .toggle span { font-size: 0.92rem; }
 
+/* The map cards' strip above the ape (TRIAGE T82): every map in one row
+   across the open part beside the docked menus. Its height with the space
+   round stays above the ape, which stands lower (menu_dock.rs). */
+body[data-dock="side"] .menus .panel.strip {
+  position: fixed;
+  top: 1.5rem;
+  left: var(--dock-w);
+  right: 1.5rem;
+  width: auto;
+  max-width: none;
+  max-height: calc(190px - 1.5rem);
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  min-width: 0;
+}
+.tiles.strip { display: flex; gap: 0.6rem; justify-content: center; margin: 0; }
+.card {
+  font: inherit;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 15rem;
+  padding: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 3px solid rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: transform 0.1s;
+}
+.card img { display: block; width: 100%; aspect-ratio: 16 / 9; max-height: calc(190px - 4.5rem); object-fit: cover; }
+.card-name { display: block; padding: 0.2rem 0.4rem; font-weight: 800; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card:hover:not(:disabled) { border-color: var(--muted); transform: translateY(-2px); }
+.card:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.card.chosen { border-color: var(--banana); transform: translateY(-4px); }
+.card.chosen .card-name { background: var(--banana); color: var(--accent-ink); }
+.tiles.strip.read-only .card { cursor: default; }
+.tiles.strip.read-only .card:not(.chosen) { opacity: 0.45; filter: grayscale(0.6); }
+
 /* What's New: the patch notes the core lists. The list scrolls; the
    minor-patches tick and Back stay in view. A minor version is smaller. */
 .panel.notes { display: flex; flex-direction: column; width: 34rem; max-width: 100%; max-height: 82vh; }

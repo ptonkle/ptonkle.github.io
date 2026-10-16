@@ -2,8 +2,8 @@
 // data files, starts the core through the shim, passes the clock, keys and
 // mouse in each display frame, builds the menus and HUD from the core's
 // view model, draws the 3D frame and plays the sounds the core names.
-import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=ijfppgbhjnlc";
-import { makeRenderer } from "./gl.js?v=ijfppgbhjnlc";
+import init, { Game, numbers, mesh, uniforms, clear_colour } from "./pkg/tool_shim.js?v=nopeceoejoil";
+import { makeRenderer } from "./gl.js?v=nopeceoejoil";
 
 const SAVE_KEY = "ape-race.settings";
 // The kept replays (TRIAGE T15) live under their own key: the core writes
@@ -200,6 +200,7 @@ function select(item) {
 // read-only grid (a joiner's lobby) shows the pick and presses nothing.
 // The arrow keys move between cards; Enter or Space presses one.
 function tiles(item) {
+  if (item.strip) return strip(item);
   // the chosen map large, the others as name buttons under it (the person,
   // 2026-10-13: the three small cards were too small to see)
   const wrap = make("div", "tiles-field");
@@ -210,7 +211,7 @@ function tiles(item) {
   const chosen = item.options.find((o) => o.chosen) || item.options[0];
   const hero = make("figure", "tile-hero");
   const img = make("img");
-  img.src = chosen.picture + "?v=ijfppgbhjnlc";
+  img.src = chosen.picture + "?v=nopeceoejoil";
   img.alt = chosen.text;
   img.draggable = false;
   hero.append(img, make("figcaption", "tile-hero-name", chosen.text));
@@ -239,6 +240,40 @@ function tiles(item) {
   grid.append(row);
   wrap.append(grid);
   return wrap;
+}
+
+// every map as a card, its picture and name, in one row above the ape
+// (TRIAGE T82); the chosen one ringed in banana yellow
+function strip(item) {
+  const row = make("div", item.read_only ? "tiles strip read-only" : "tiles strip");
+  row.id = item.id;
+  row.dataset.value = item.value;
+  row.setAttribute("role", "radiogroup");
+  row.setAttribute("aria-label", item.label);
+  item.options.forEach((o) => {
+    const b = make("button", o.chosen ? "card chosen" : "card");
+    b.type = "button";
+    b.id = o.id;
+    b.dataset.value = o.value;
+    b.disabled = item.read_only === true;
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", o.chosen ? "true" : "false");
+    const img = make("img");
+    img.src = o.picture;
+    img.alt = "";
+    img.draggable = false;
+    b.append(img, make("span", "card-name", o.text));
+    on(o.id, "click", () => send(item.id, o.value));
+    on(o.id, "keydown", (t, e) => {
+      const to = { ArrowRight: t.nextElementSibling, ArrowLeft: t.previousElementSibling }[e.key];
+      if (to) {
+        e.preventDefault();
+        to.focus();
+      }
+    });
+    row.append(b);
+  });
+  return row;
 }
 
 function slider(item) {
@@ -720,7 +755,7 @@ function onNet(e) {
 
 async function netRequest(req) {
   try {
-    if (!online) online = await import("./online.js?v=ijfppgbhjnlc");
+    if (!online) online = await import("./online.js?v=nopeceoejoil");
     if (req.op === "host_room") await online.hostRoom(req.room, onNet);
     else if (req.op === "join_room") await online.joinRoom(req.room, onNet);
     else if (req.op === "host_code") game.net_code("invite", await online.hostByCode(onNet));
@@ -777,10 +812,10 @@ function handle(view) {
 }
 
 async function start() {
-  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=ijfppgbhjnlc" });
+  await init({ module_or_path: "pkg/tool_shim_bg.wasm?v=nopeceoejoil" });
   const [strings, vertex, fragment] = await Promise.all(
     ["data/strings.json", "data/shaders/scene.vert", "data/shaders/scene.frag"].map((f) =>
-      fetch(f + "?v=ijfppgbhjnlc").then((r) => r.text()),
+      fetch(f + "?v=nopeceoejoil").then((r) => r.text()),
     ),
   );
   const entropy = new Uint32Array(1);
