@@ -57,6 +57,9 @@
     a.game:hover, a.game:focus-visible { border-color: var(--leaf); transform: translateY(-2px); }
     a.game strong { display: block; font-size: 1.4rem; color: var(--accent); }
     a.game span { color: var(--muted); }
+    a.game { position: relative; }
+    a.game .featured { position: absolute; top: 0.6rem; left: 0.6rem; padding: 0.15rem 0.6rem; border-radius: 999px; background: var(--accent); color: var(--soil); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; box-shadow: 0 2px 6px rgb(0 0 0 / 0.35); }
+    a.game.is-featured { border-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -71,7 +74,8 @@
         <span>Ant-colony real-time strategy in the browser · 1v1, 2v2 and Free-for-all · against the AI or online</span>
       </span>
     </a>
-    <a class="game" href="ape-race/">
+    <a class="game is-featured" href="ape-race/">
+      <span class="featured">★ Featured</span>
       <img id="ape-race-shot" src="img/ape-race/lineup.png" width="990" height="557" alt="Apes racing on vines and wires in Ape Race">
       <span class="text">
         <strong>Ape Race</strong>
@@ -85,7 +89,8 @@
         <span>3D fishing on a foggy northern lake in the browser · hook the big ones, ram your rivals off theirs · against the AI or online for up to four</span>
       </span>
     </a>
-    <a class="game" href="crabble/">
+    <a class="game is-featured" href="crabble/">
+      <span class="featured">★ Featured</span>
       <img src="img/crabble/title.png" width="990" height="557" alt="CRABBLE spelled in word tiles on a sandy seafloor">
       <span class="text">
         <strong>Crabble</strong>
