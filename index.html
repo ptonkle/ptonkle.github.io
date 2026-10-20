@@ -28,12 +28,13 @@
       place-items: center;
       padding: 2rem 1rem;
     }
-    main { width: 100%; max-width: 36rem; }
+    main { width: 100%; max-width: 72rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1rem; margin-bottom: 2rem; }
     h1 { margin: 0 0 1.5rem; font-size: 2.2rem; color: var(--accent); letter-spacing: 0.04em; }
     h2 { margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; }
-    a.game + a.game { margin-top: 1rem; }
     a.game {
-      display: block;
+      display: flex;
+      flex-direction: column;
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 12px;
@@ -62,6 +63,7 @@
   <main>
     <h1>ptonk</h1>
     <h2>Games</h2>
+    <div class="grid">
     <a class="game" href="mandible/">
       <img id="mandible-shot" src="img/mandible/battle-01.webp" width="990" height="557" alt="An ant battle in Mandible">
       <span class="text">
@@ -90,7 +92,9 @@
         <span>Speed word tiles as crabs on the seafloor in the browser · no turns, grab letters and claim words before your rivals extend them · against the AI or online for up to four</span>
       </span>
     </a>
+    </div>
     <h2>Other</h2>
+    <div class="grid">
     <a class="game" href="ptonklescopes/">
       <img src="img/ptonklescopes/signs.png" width="990" height="557" alt="The twelve star signs in Ptonklescopes">
       <span class="text">
@@ -98,6 +102,7 @@
         <span>Daily horoscopes for the games you play · what the stars hold for your next match</span>
       </span>
     </a>
+    </div>
   </main>
   <script>
     // A different battle on each visit.
