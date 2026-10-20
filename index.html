@@ -60,6 +60,8 @@
     a.game { position: relative; }
     a.game .featured { position: absolute; top: 0.6rem; left: 0.6rem; padding: 0.15rem 0.6rem; border-radius: 999px; background: var(--accent); color: var(--soil); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; box-shadow: 0 2px 6px rgb(0 0 0 / 0.35); }
     a.game.is-featured { border-color: var(--accent); }
+    /* featured cards always come first in their grid */
+    a.game.is-featured { order: -1; }
   </style>
 </head>
 <body>
